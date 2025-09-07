@@ -32,16 +32,20 @@ const StaffCard: React.FC<{
     setActiveAltIndex(newIndex);
   };
 
+  // Get the character to display (main or alt)
+  const displayCharacter = isFlipped && hasAlts ? staff.alts[activeAltIndex] : staff;
+
   return (
     <div className={styles.cardContainer}>
       <div className={`${styles.card} ${isFlipped ? styles.isFlipped : ""}`}>
-        <div className={styles.cardFaceFront}>
-          <CharacterDisplay character={staff} />
-        </div>
-        <div className={styles.cardFaceBack}>
-          {hasAlts && (
-            <CharacterDisplay character={staff.alts[activeAltIndex]} />
-          )}
+        {/* Single card face that transitions content smoothly */}
+        <div className={styles.cardFace}>
+          <CharacterDisplay 
+            character={displayCharacter} 
+            isAlt={isFlipped && hasAlts} 
+            altIndex={activeAltIndex}
+            totalAlts={hasAlts ? staff.alts.length : 0}
+          />
         </div>
       </div>
       
@@ -85,8 +89,11 @@ const StaffCard: React.FC<{
 
 const CharacterDisplay: React.FC<{
   character: StaffWithAlts | StaffWithAlts["alts"][number];
-}> = ({ character }) => (
-  <>
+  isAlt?: boolean;
+  altIndex?: number;
+  totalAlts?: number;
+}> = ({ character, isAlt = false, altIndex = 0, totalAlts = 0 }) => (
+  <div className={`${styles.characterContent} ${isAlt ? styles.altCharacter : ''}`}>
     <div className={styles.cardImageWrapper}>
       <img
         src={character.pictureUrl || "/placeholder-avatar.png"}
@@ -96,13 +103,25 @@ const CharacterDisplay: React.FC<{
           (e.target as HTMLImageElement).src = "/placeholder-avatar.png";
         }}
       />
+      {isAlt && (
+        <div className={styles.altBadge}>
+          <span>Alt {altIndex + 1}</span>
+        </div>
+      )}
     </div>
     <div className={styles.cardContent}>
-      <h3 className={styles.cardName}>{character.name}</h3>
+      <div className={styles.cardHeader}>
+        <h3 className={styles.cardName}>{character.name}</h3>
+        {isAlt && totalAlts > 1 && (
+          <span className={styles.altIndicatorText}>
+            {altIndex + 1}/{totalAlts}
+          </span>
+        )}
+      </div>
       <p className={styles.cardRole}>{character.role}</p>
       <p className={styles.cardBio}>{character.bio}</p>
     </div>
-  </>
+  </div>
 );
 
 const StaffPage: React.FC = () => {

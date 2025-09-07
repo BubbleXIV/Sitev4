@@ -1,0 +1,57 @@
+.container {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--background);
+  transition: box-shadow var(--animation-duration-fast) ease;
+}
+
+.container:hover {
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-2) var(--spacing-3);
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+
+.dragHandle {
+  cursor: grab;
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+  margin-right: var(--spacing-2);
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.blockType {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--spacing-1);
+}
+
+.deleteButton:hover {
+  color: var(--error);
+  background-color: color-mix(in srgb, var(--error) 10%, transparent);
+}
+
+.contentWrapper {
+  padding: var(--spacing-4);
+}

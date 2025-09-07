@@ -1,0 +1,192 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.error {
+  color: var(--error);
+  background-color: color-mix(in srgb, var(--error) 10%, transparent);
+  padding: var(--spacing-4);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.optional {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  font-weight: normal;
+}
+
+.loadingList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.userCardSkeleton {
+  display: flex;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.userInfoSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  flex: 1;
+}
+
+.usersList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.userCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--spacing-4);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: transform var(--animation-duration-normal) ease, box-shadow var(--animation-duration-normal) ease;
+}
+
+.userCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.userInfo {
+  display: flex;
+  gap: var(--spacing-4);
+  flex: 1;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  flex: 1;
+}
+
+.userName {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.userMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.userDates {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-top: var(--spacing-1);
+}
+
+.userActions {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-shrink: 0;
+}
+
+.deletePreview {
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: flex-start;
+}
+
+.deletePreview div {
+  flex: 1;
+}
+
+.deletePreview p {
+  margin: 0 0 var(--spacing-2) 0;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-12);
+  text-align: center;
+  color: var(--muted-foreground);
+}
+
+.emptyState svg {
+  margin-bottom: var(--spacing-4);
+  opacity: 0.5;
+}
+
+.emptyState h3 {
+  margin: 0 0 var(--spacing-2) 0;
+  color: var(--foreground);
+}
+
+.emptyState p {
+  margin: 0;
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .userCard {
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+  
+  .userInfo {
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+  
+  .userMeta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+  }
+  
+  .userActions {
+    align-self: flex-end;
+  }
+  
+  .deletePreview {
+    flex-direction: column;
+    text-align: center;
+  }
+}

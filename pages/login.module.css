@@ -1,0 +1,74 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 200px); /* Adjust based on header/footer height */
+  padding: var(--spacing-8);
+  background-color: var(--background);
+}
+
+.loginCard {
+  width: 100%;
+  max-width: 450px;
+  padding: var(--spacing-8);
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  animation: fadeIn 0.5s ease-out;
+}
+
+.title {
+  font-family: var(--font-family-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: var(--spacing-2);
+  color: var(--foreground);
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--muted-foreground);
+  margin-bottom: var(--spacing-8);
+}
+
+.testCredentials {
+  background-color: var(--muted);
+  border-radius: var(--radius);
+  padding: var(--spacing-4);
+  margin-bottom: var(--spacing-6);
+  font-size: 0.875rem;
+  border: 1px solid var(--border);
+}
+
+.testCredentials p {
+  margin: var(--spacing-1) 0;
+  color: var(--muted-foreground);
+  word-break: break-all;
+}
+
+.testCredentials strong {
+  color: var(--foreground);
+}
+
+.testTitle {
+  margin-top: 0;
+  margin-bottom: var(--spacing-2);
+  font-family: var(--font-family-heading);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

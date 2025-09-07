@@ -1,0 +1,126 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav-sticky);
+  background-color: color-mix(in srgb, var(--background) 80%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 var(--spacing-6);
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 4.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-family-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.logo img {
+  height: 2.5rem;
+  margin-right: var(--spacing-2);
+}
+
+.nav {
+  display: flex;
+  gap: var(--spacing-6);
+}
+
+.navLink {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  text-decoration: none;
+  position: relative;
+  transition: color var(--animation-duration-fast) ease;
+}
+
+.navLink:hover {
+  color: var(--foreground);
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--primary);
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform var(--animation-duration-normal) ease-out;
+}
+
+.navLink:hover::after,
+.navLink.active::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.navLink.active {
+  color: var(--primary);
+}
+
+.authActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.main {
+  flex-grow: 1;
+}
+
+.footer {
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: var(--spacing-6) var(--spacing-6);
+  color: var(--muted-foreground);
+}
+
+.footerContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footerContent p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.socialLinks {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.socialLinks a {
+  color: var(--muted-foreground);
+  transition: color var(--animation-duration-fast) ease;
+}
+
+.socialLinks a:hover {
+  color: var(--primary);
+}

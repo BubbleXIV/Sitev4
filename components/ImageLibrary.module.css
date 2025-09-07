@@ -1,0 +1,186 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.error {
+  color: var(--error);
+  background-color: color-mix(in srgb, var(--error) 10%, transparent);
+  padding: var(--spacing-4);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.loadingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}
+
+.imageCard {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: transform var(--animation-duration-normal) ease, box-shadow var(--animation-duration-normal) ease;
+}
+
+.imageCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.imagePreview {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background-color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--animation-duration-normal) ease;
+}
+
+.imageCard:hover .imagePreview img {
+  transform: scale(1.05);
+}
+
+.imageInfo {
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.imageName {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  word-break: break-word;
+}
+
+.imageAlt {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+
+.imageMeta {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.imageActions {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+}
+
+.copyButton {
+  flex: 1;
+}
+
+.deleteButton {
+  color: var(--error);
+}
+
+.deleteButton:hover {
+  background-color: color-mix(in srgb, var(--error) 10%, transparent);
+}
+
+.deletePreview {
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: flex-start;
+}
+
+.deletePreview img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.deletePreview div {
+  flex: 1;
+}
+
+.deletePreview p {
+  margin: 0 0 var(--spacing-2) 0;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-12);
+  text-align: center;
+  color: var(--muted-foreground);
+}
+
+.emptyState svg {
+  margin-bottom: var(--spacing-4);
+  opacity: 0.5;
+}
+
+.emptyState h3 {
+  margin: 0 0 var(--spacing-2) 0;
+  color: var(--foreground);
+}
+
+.emptyState p {
+  margin: 0;
+  max-width: 400px;
+}
+
+@media (max-width: 768px) {
+  .imageGrid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+  
+  .imageActions {
+    flex-direction: column;
+  }
+  
+  .deletePreview {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .deletePreview img {
+    align-self: center;
+  }
+}

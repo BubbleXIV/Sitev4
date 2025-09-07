@@ -1,0 +1,112 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.staffList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  margin-top: var(--spacing-4);
+}
+
+.staffCard {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.staffMember {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-4);
+  background-color: var(--surface);
+}
+
+.staffInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.staffName {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--foreground);
+  margin: 0;
+}
+
+.staffRole {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.altsSection {
+  padding: var(--spacing-4);
+  border-top: 1px solid var(--border);
+}
+
+.altsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-4);
+}
+
+.altsTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.altsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.altMember {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-3);
+  background-color: var(--background);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.noAlts,
+.noStaff {
+  color: var(--muted-foreground);
+  font-style: italic;
+  padding: var(--spacing-4);
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+/* Form Styles */
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+}

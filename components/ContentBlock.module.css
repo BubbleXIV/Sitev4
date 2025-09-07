@@ -1,24 +1,31 @@
-.container {
-  position: relative;
+/* ContentBlock.module.css */
+
+.contentBlock {
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background-color: var(--background);
-  transition: box-shadow var(--animation-duration-fast) ease;
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  margin-bottom: var(--spacing-4);
+  overflow: hidden;
+  transition: all 0.2s ease;
 }
 
-.container:hover {
-  box-shadow: var(--shadow-md);
-  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+.contentBlock:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.controls {
+.editing {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+}
+
+.blockHeader {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-2) var(--spacing-3);
-  background-color: var(--surface);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--muted);
   border-bottom: 1px solid var(--border);
-  border-top-left-radius: var(--radius-md);
-  border-top-right-radius: var(--radius-md);
 }
 
 .dragHandle {
@@ -33,12 +40,28 @@
   cursor: grabbing;
 }
 
+.blockInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex: 1;
+}
+
+.blockTitle {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--foreground);
+}
+
 .blockType {
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--muted-foreground);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  background: var(--muted);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius);
 }
 
 .actions {
@@ -54,4 +77,262 @@
 
 .contentWrapper {
   padding: var(--spacing-4);
+}
+
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.styleOptions {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.imageUploadSection {
+  display: flex;
+  gap: var(--spacing-2);
+  align-items: flex-end;
+}
+
+.uploadActions {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.imagePreview {
+  margin-top: var(--spacing-2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  max-width: 300px;
+}
+
+.imagePreview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.previewMode {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-3);
+}
+
+.previewHeader {
+  background: var(--muted);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-3);
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+/* Content type specific styles */
+.textContent {
+  line-height: 1.6;
+}
+
+.textContent p {
+  margin: 0;
+  color: var(--foreground);
+}
+
+.align-left {
+  text-align: left;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.align-right {
+  text-align: right;
+}
+
+.headingContent h1,
+.headingContent h2,
+.headingContent h3,
+.headingContent h4,
+.headingContent h5,
+.headingContent h6 {
+  margin: 0;
+  color: var(--foreground);
+}
+
+.h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.imageContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.imageWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.imageWrapper img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.imageCaption {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  font-style: italic;
+  margin: 0;
+}
+
+.imagePlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-8);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+.imagePlaceholder p {
+  margin: var(--spacing-2) 0 0;
+  font-size: 0.875rem;
+}
+
+.cardContent {
+  display: flex;
+  justify-content: center;
+}
+
+.contentCard {
+  max-width: 400px;
+  width: 100%;
+  transition: transform 0.2s ease;
+}
+
+.contentCard:hover {
+  transform: translateY(-2px);
+}
+
+.cardImageWrapper {
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.cardImageWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.style-primary .contentCard {
+  border-color: var(--primary);
+}
+
+.style-secondary .contentCard {
+  border-color: var(--secondary);
+}
+
+.style-accent .contentCard {
+  border-color: var(--accent);
+}
+
+.buttonContent {
+  display: flex;
+}
+
+.buttonContent button {
+  transition: transform 0.2s ease;
+}
+
+.buttonContent button:hover {
+  transform: scale(1.05);
+}
+
+.style-primary {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.style-secondary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.style-accent {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.dividerContent {
+  padding: var(--spacing-4) 0;
+}
+
+.divider {
+  width: 100%;
+}
+
+.style-thick .divider {
+  height: 3px;
+}
+
+.style-dashed .divider {
+  border-style: dashed;
+}
+
+.style-dotted .divider {
+  border-style: dotted;
+}
+
+.unknownBlock {
+  padding: var(--spacing-4);
+  text-align: center;
+  color: var(--destructive);
+  background: var(--destructive-foreground);
+  border-radius: var(--radius);
+  font-style: italic;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -1,187 +1,148 @@
-import React, { useState } from 'react';
-import { useImagesQuery, useUploadImageMutation, useDeleteImageMutation } from '../helpers/useImageQuery';
+import React, { useState, useRef } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
-import { Form, useForm, FormItem, FormLabel, FormControl, FormMessage } from './Form';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from './Dialog';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './Card';
 import { Badge } from './Badge';
 import { Skeleton } from './Skeleton';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
-import { Upload, Link as LinkIcon, Trash2, Copy, Check, Image as ImageIcon } from 'lucide-react';
-import { z } from 'zod';
+import { useImagesQuery, useUploadImageMutation, useDeleteImageMutation } from '../helpers/useImageQuery';
+import { 
+  Upload, 
+  Image as ImageIcon, 
+  Trash2, 
+  Copy, 
+  Download, 
+  Search,
+  Grid,
+  List,
+  Filter,
+  X,
+  CheckCircle,
+  AlertCircle,
+  Loader2
+} from 'lucide-react';
+import { toast } from 'sonner';
 import styles from './ImageLibrary.module.css';
 
-const fileUploadSchema = z.object({
-  source: z.literal("upload"),
-  file: z.instanceof(File, { message: "Image is required." }),
-  altText: z.string().optional(),
-});
-
-const urlUploadSchema = z.object({
-  source: z.literal("url"),
-  url: z.string().url("Please enter a valid URL."),
-  altText: z.string().optional(),
-});
-
-const uploadSchema = z.discriminatedUnion("source", [
-  fileUploadSchema,
-  urlUploadSchema,
-]);
-
-type UploadFormValues = z.infer<typeof uploadSchema>;
-
-interface UploadFormProps {
-  onClose: () => void;
+interface ImageItem {
+  id: number;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  createdAt: string;
 }
 
-const UploadForm: React.FC<UploadFormProps> = ({ onClose }) => {
-  const [uploadType, setUploadType] = useState<'upload' | 'url'>('upload');
+export const ImageLibrary: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedImages, setSelectedImages] = useState<number[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: imagesData, isFetching, error } = useImagesQuery();
   const uploadMutation = useUploadImageMutation();
+  const deleteMutation = useDeleteImageMutation();
 
-  const form = useForm({
-    schema: uploadSchema,
-    defaultValues: uploadType === 'upload' 
-      ? { source: 'upload' as const, file: undefined as any, altText: '' }
-      : { source: 'url' as const, url: '', altText: '' },
-  });
+  const images = imagesData?.images || [];
 
-  const handleSubmit = async (values: UploadFormValues) => {
-    try {
-      const formData = new FormData();
-      formData.append('source', values.source);
-      
-      if (values.source === 'upload' && values.file) {
-        formData.append('file', values.file);
-      } else if (values.source === 'url' && values.url) {
-        formData.append('url', values.url);
-      }
-      
-      if (values.altText) {
-        formData.append('altText', values.altText);
-      }
-
-      await uploadMutation.mutateAsync(formData);
-      onClose();
-    } catch (error) {
-      console.error("Failed to upload image:", error);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      form.setValues(prev => ({ ...prev, file }));
-    }
-  };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className={styles.form}>
-        <DialogHeader>
-          <DialogTitle>Upload Image</DialogTitle>
-        </DialogHeader>
-        
-        <Tabs value={uploadType} onValueChange={(value) => {
-          const newType = value as 'upload' | 'url';
-          setUploadType(newType);
-          // Reset form with proper structure for the new type
-          if (newType === 'upload') {
-            form.setValues({ source: 'upload' as const, file: undefined as any, altText: form.values.altText || '' });
-          } else {
-            form.setValues({ source: 'url' as const, url: '', altText: form.values.altText || '' });
-          }
-        }}>
-          <TabsList>
-            <TabsTrigger value="upload">
-              <Upload size={16} />
-              File Upload
-            </TabsTrigger>
-            <TabsTrigger value="url">
-              <LinkIcon size={16} />
-              URL
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="upload">
-            <div className={styles.formFields}>
-              <FormItem name="file">
-                <FormLabel>Select Image File</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="url">
-            <div className={styles.formFields}>
-              <FormItem name="url">
-                <FormLabel>Image URL</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="https://example.com/image.jpg"
-                    value={form.values.source === 'url' ? form.values.url || '' : ''}
-                    onChange={(e) => {
-                      if (form.values.source === 'url') {
-                        form.setValues({ ...form.values, url: e.target.value });
-                      }
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        <div className={styles.formFields}>
-          <FormItem name="altText">
-            <FormLabel>Alt Text (Optional)</FormLabel>
-            <FormControl>
-              <Input
-                placeholder="Describe the image for accessibility"
-                value={form.values.altText || ''}
-                onChange={(e) => form.setValues(prev => ({ ...prev, altText: e.target.value }))}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        </div>
-
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="ghost">Cancel</Button>
-          </DialogClose>
-          <Button type="submit" disabled={uploadMutation.isPending}>
-            {uploadMutation.isPending ? 'Uploading...' : 'Upload Image'}
-          </Button>
-        </DialogFooter>
-      </form>
-    </Form>
+  // Filter images based on search term
+  const filteredImages = images.filter(image =>
+    image.originalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    image.filename.toLowerCase().includes(searchTerm.toLowerCase())
   );
-};
 
-interface ImageCardProps {
-  image: any;
-  onDelete: (image: any) => void;
-}
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
 
-const ImageCard: React.FC<ImageCardProps> = ({ image, onDelete }) => {
-  const [copied, setCopied] = useState(false);
+    for (const file of files) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error(`${file.name} is not a valid image file`);
+        continue;
+      }
 
-  const copyUrl = async () => {
-    try {
-      await navigator.clipboard.writeText(image.url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy URL:', error);
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`${file.name} is too large. Maximum file size is 10MB.`);
+        continue;
+      }
+
+      setUploadingFiles(prev => [...prev, file.name]);
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        await uploadMutation.mutateAsync(formData);
+        toast.success(`${file.name} uploaded successfully`);
+      } catch (error) {
+        toast.error(`Failed to upload ${file.name}`);
+        console.error('Upload error:', error);
+      } finally {
+        setUploadingFiles(prev => prev.filter(name => name !== file.name));
+      }
     }
+
+    // Clear the input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDeleteImage = async (imageId: number, filename: string) => {
+    if (!confirm(`Are you sure you want to delete ${filename}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await deleteMutation.mutateAsync(imageId);
+      toast.success(`${filename} deleted successfully`);
+      setSelectedImages(prev => prev.filter(id => id !== imageId));
+    } catch (error) {
+      toast.error(`Failed to delete ${filename}`);
+      console.error('Delete error:', error);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedImages.length === 0) return;
+    
+    if (!confirm(`Are you sure you want to delete ${selectedImages.length} selected images? This action cannot be undone.`)) {
+      return;
+    }
+
+    for (const imageId of selectedImages) {
+      try {
+        await deleteMutation.mutateAsync(imageId);
+      } catch (error) {
+        console.error('Delete error:', error);
+      }
+    }
+
+    toast.success(`${selectedImages.length} images deleted successfully`);
+    setSelectedImages([]);
+  };
+
+  const copyImageUrl = (url: string, filename: string) => {
+    navigator.clipboard.writeText(url);
+    toast.success(`URL for ${filename} copied to clipboard`);
+  };
+
+  const downloadImage = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+  };
+
+  const toggleImageSelection = (imageId: number) => {
+    setSelectedImages(prev =>
+      prev.includes(imageId)
+        ? prev.filter(id => id !== imageId)
+        : [...prev, imageId]
+    );
   };
 
   const formatFileSize = (bytes: number) => {
@@ -192,149 +153,286 @@ const ImageCard: React.FC<ImageCardProps> = ({ image, onDelete }) => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  return (
-    <div className={styles.imageCard}>
-      <div className={styles.imagePreview}>
-        <img src={image.url} alt={image.altText || image.filename} />
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const renderUploadArea = () => (
+    <div className={styles.uploadArea}>
+      <div className={styles.uploadHeader}>
+        <h3>Upload Images</h3>
+        <p>Drag and drop images here or click to browse</p>
       </div>
       
-      <div className={styles.imageInfo}>
-        <h4 className={styles.imageName}>{image.filename}</h4>
-        {image.altText && (
-          <p className={styles.imageAlt}>{image.altText}</p>
-        )}
-        
-        <div className={styles.imageMeta}>
-          {image.mimeType && <Badge variant="outline">{image.mimeType}</Badge>}
-          {image.sizeBytes && <Badge variant="outline">{formatFileSize(image.sizeBytes)}</Badge>}
+      <div 
+        className={styles.uploadZone}
+        onClick={() => fileInputRef.current?.click()}
+        onDrop={(e) => {
+          e.preventDefault();
+          const files = Array.from(e.dataTransfer.files);
+          if (fileInputRef.current) {
+            // Create a new FileList-like object
+            const dt = new DataTransfer();
+            files.forEach(file => dt.items.add(file));
+            fileInputRef.current.files = dt.files;
+            handleFileUpload({ target: { files: dt.files } } as any);
+          }
+        }}
+        onDragOver={(e) => e.preventDefault()}
+      >
+        <Upload size={48} className={styles.uploadIcon} />
+        <p>Click to upload or drag and drop</p>
+        <p className={styles.uploadHint}>
+          Supports JPG, PNG, GIF, WebP up to 10MB
+        </p>
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFileUpload}
+        style={{ display: 'none' }}
+      />
+
+      {uploadingFiles.length > 0 && (
+        <div className={styles.uploadProgress}>
+          <h4>Uploading Files:</h4>
+          {uploadingFiles.map(filename => (
+            <div key={filename} className={styles.uploadingFile}>
+              <Loader2 size={16} className={styles.spinner} />
+              <span>{filename}</span>
+            </div>
+          ))}
         </div>
-        
-        <div className={styles.imageActions}>
+      )}
+    </div>
+  );
+
+  const renderToolbar = () => (
+    <div className={styles.toolbar}>
+      <div className={styles.searchSection}>
+        <div className={styles.searchInput}>
+          <Search size={16} />
+          <Input
+            placeholder="Search images..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button onClick={() => setSearchTerm('')} className={styles.clearSearch}>
+              <X size={14} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.toolbarActions}>
+        {selectedImages.length > 0 && (
+          <>
+            <Badge variant="secondary" className={styles.selectionCount}>
+              {selectedImages.length} selected
+            </Badge>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleDeleteSelected}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 size={14} /> Delete Selected
+            </Button>
+          </>
+        )}
+
+        <div className={styles.viewToggle}>
           <Button
-            variant="outline"
             size="sm"
-            onClick={copyUrl}
-            className={styles.copyButton}
+            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            onClick={() => setViewMode('grid')}
           >
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? 'Copied!' : 'Copy URL'}
+            <Grid size={14} />
           </Button>
-          
           <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => onDelete(image)}
-            className={styles.deleteButton}
+            size="sm"
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            onClick={() => setViewMode('list')}
           >
-            <Trash2 size={16} />
+            <List size={14} />
           </Button>
         </div>
       </div>
     </div>
   );
-};
 
-export const ImageLibrary: React.FC = () => {
-  const { data: imagesData, isFetching, error } = useImagesQuery();
-  const deleteMutation = useDeleteImageMutation();
-
-  const [uploadDialog, setUploadDialog] = useState(false);
-  const [deleteDialog, setDeleteDialog] = useState<any>(null);
-
-  const handleDelete = async () => {
-    if (!deleteDialog) return;
-    try {
-      await deleteMutation.mutateAsync({ id: deleteDialog.id });
-      setDeleteDialog(null);
-    } catch (error) {
-      console.error("Failed to delete image:", error);
-    }
-  };
-
-  if (isFetching) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loadingGrid}>
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} style={{ width: '100%', height: '200px', borderRadius: 'var(--radius)' }} />
-          ))}
+  const renderImageCard = (image: ImageItem) => (
+    <Card 
+      key={image.id} 
+      className={`${styles.imageCard} ${selectedImages.includes(image.id) ? styles.selected : ''}`}
+    >
+      <div className={styles.imagePreview}>
+        <img
+          src={image.url}
+          alt={image.originalName}
+          className={styles.previewImage}
+        />
+        <div className={styles.imageOverlay}>
+          <div className={styles.imageActions}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => copyImageUrl(image.url, image.originalName)}
+            >
+              <Copy size={14} />
+            </Button>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => downloadImage(image.url, image.originalName)}
+            >
+              <Download size={14} />
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={() => handleDeleteImage(image.id, image.originalName)}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 size={14} />
+            </Button>
+          </div>
+          <div className={styles.selectionCheckbox}>
+            <input
+              type="checkbox"
+              checked={selectedImages.includes(image.id)}
+              onChange={() => toggleImageSelection(image.id)}
+            />
+          </div>
         </div>
       </div>
-    );
-  }
+      <CardContent className={styles.imageInfo}>
+        <p className={styles.imageName} title={image.originalName}>
+          {image.originalName}
+        </p>
+        <div className={styles.imageMetadata}>
+          <span className={styles.fileSize}>{formatFileSize(image.size)}</span>
+          <span className={styles.uploadDate}>{formatDate(image.createdAt)}</span>
+        </div>
+        <div className={styles.imageUrl}>
+          <Input
+            value={image.url}
+            readOnly
+            onClick={(e) => e.currentTarget.select()}
+            className={styles.urlInput}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderListItem = (image: ImageItem) => (
+    <div key={image.id} className={`${styles.listItem} ${selectedImages.includes(image.id) ? styles.selected : ''}`}>
+      <div className={styles.listItemCheckbox}>
+        <input
+          type="checkbox"
+          checked={selectedImages.includes(image.id)}
+          onChange={() => toggleImageSelection(image.id)}
+        />
+      </div>
+      <div className={styles.listItemPreview}>
+        <img src={image.url} alt={image.originalName} />
+      </div>
+      <div className={styles.listItemInfo}>
+        <p className={styles.listItemName}>{image.originalName}</p>
+        <p className={styles.listItemMeta}>
+          {formatFileSize(image.size)} • {formatDate(image.createdAt)}
+        </p>
+      </div>
+      <div className={styles.listItemUrl}>
+        <Input
+          value={image.url}
+          readOnly
+          onClick={(e) => e.currentTarget.select()}
+        />
+      </div>
+      <div className={styles.listItemActions}>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => copyImageUrl(image.url, image.originalName)}
+        >
+          <Copy size={14} />
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => downloadImage(image.url, image.originalName)}
+        >
+          <Download size={14} />
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => handleDeleteImage(image.id, image.originalName)}
+          disabled={deleteMutation.isPending}
+        >
+          <Trash2 size={14} />
+        </Button>
+      </div>
+    </div>
+  );
 
   if (error) {
     return (
-      <div className={styles.error}>
-        <p>Error loading images: {error instanceof Error ? error.message : 'Unknown error'}</p>
+      <div className={styles.errorState}>
+        <AlertCircle size={48} />
+        <h3>Failed to load images</h3>
+        <p>{error instanceof Error ? error.message : 'An unknown error occurred'}</p>
       </div>
     );
   }
 
-  const images = imagesData?.images ?? [];
-
   return (
-    <div className={styles.container}>
-      {/* Upload Dialog */}
-      <Dialog open={uploadDialog} onOpenChange={setUploadDialog}>
-        <DialogTrigger asChild>
-          <Button>
-            <Upload size={16} />
-            Upload Image
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <UploadForm onClose={() => setUploadDialog(false)} />
-        </DialogContent>
-      </Dialog>
+    <div className={styles.imageLibrary}>
+      {renderUploadArea()}
+      
+      <div className={styles.librarySection}>
+        <div className={styles.libraryHeader}>
+          <h3>Image Library</h3>
+          <p>{filteredImages.length} of {images.length} images</p>
+        </div>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteDialog} onOpenChange={(open) => !open && setDeleteDialog(null)}>
-        {deleteDialog && (
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Delete Image?</DialogTitle>
-            </DialogHeader>
-            <div className={styles.deletePreview}>
-              <img src={deleteDialog.url} alt={deleteDialog.filename} />
-              <div>
-                <p><strong>{deleteDialog.filename}</strong></p>
-                <p>Are you sure you want to delete this image? This action cannot be undone.</p>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button 
-                variant="ghost" 
-                onClick={() => setDeleteDialog(null)}
-              >
-                Cancel
-              </Button>
-              <Button 
-                variant="destructive" 
-                onClick={handleDelete}
-                disabled={deleteMutation.isPending}
-              >
-                {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        )}
-      </Dialog>
+        {renderToolbar()}
 
-      <div className={styles.imageGrid}>
-        {images.length > 0 ? (
-          images.map(image => (
-            <ImageCard
-              key={image.id}
-              image={image}
-              onDelete={setDeleteDialog}
-            />
-          ))
-        ) : (
+        {isFetching ? (
+          <div className={`${styles.imagesContainer} ${styles[viewMode]}`}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className={styles.skeletonCard}>
+                <Skeleton className={styles.skeletonImage} />
+                <CardContent>
+                  <Skeleton style={{ height: '1rem', width: '80%', marginBottom: '0.5rem' }} />
+                  <Skeleton style={{ height: '0.75rem', width: '60%' }} />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : filteredImages.length === 0 ? (
           <div className={styles.emptyState}>
             <ImageIcon size={48} />
-            <h3>No images uploaded yet</h3>
-            <p>Upload your first image to get started with the image library.</p>
+            <h3>{searchTerm ? 'No images found' : 'No images uploaded yet'}</h3>
+            <p>
+              {searchTerm 
+                ? `No images match "${searchTerm}"`
+                : 'Upload your first image to get started'
+              }
+            </p>
+          </div>
+        ) : (
+          <div className={`${styles.imagesContainer} ${styles[viewMode]}`}>
+            {viewMode === 'grid' 
+              ? filteredImages.map(renderImageCard)
+              : filteredImages.map(renderListItem)
+            }
           </div>
         )}
       </div>

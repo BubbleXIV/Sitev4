@@ -1,258 +1,265 @@
 import React, { useState } from 'react';
-import { usePageContentQuery, useUpdatePageContentMutation } from '../helpers/usePageContentQuery';
 import { Button } from './Button';
-import { Input } from './Input';
-import { Textarea } from './Textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './Card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './Select';
-import { Form, useForm, FormItem, FormLabel, FormControl, FormMessage } from './Form';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from './Dialog';
 import { Badge } from './Badge';
 import { Skeleton } from './Skeleton';
-import { Search, Edit, Plus, Trash2 } from 'lucide-react';
-import { z } from 'zod';
+import { 
+  FileText, 
+  Edit, 
+  Eye, 
+  Home, 
+  Users, 
+  Briefcase, 
+  Info, 
+  ExternalLink 
+} from 'lucide-react';
+import { PageBuilder } from './PageBuilder';
+import { usePageContentQuery } from '../helpers/usePageContentQuery';
 import styles from './PageContentManagement.module.css';
 
-const pageContentSchema = z.object({
-  pageSlug: z.string().min(1, "Page slug is required"),
-  content: z.array(z.object({
-    sectionKey: z.string().min(1, "Section key is required"),
-    contentType: z.string().min(1, "Content type is required"),
-    content: z.string().nullable(),
-  })),
-});
+interface PageOption {
+  slug: string;
+  name: string;
+  description: string;
+  icon: React.ReactNode;
+  route: string;
+}
 
-type PageContentFormValues = z.infer<typeof pageContentSchema>;
-
-const AVAILABLE_PAGES = [
-  { slug: 'home', name: 'Home Page' },
-  { slug: 'about', name: 'About Us' },
-  { slug: 'menu', name: 'Menu' },
-  { slug: 'events', name: 'Events' },
-  { slug: 'contact', name: 'Contact' },
-];
-
-const CONTENT_TYPES = [
-  { value: 'text', label: 'Text' },
-  { value: 'html', label: 'HTML' },
-  { value: 'markdown', label: 'Markdown' },
-  { value: 'image_url', label: 'Image URL' },
+const availablePages: PageOption[] = [
+  {
+    slug: '_index',
+    name: 'Home Page',
+    description: 'Main landing page with hero section and introduction',
+    icon: <Home size={20} />,
+    route: '/'
+  },
+  {
+    slug: 'about',
+    name: 'About Us',
+    description: 'Company story, mission, and values',
+    icon: <Info size={20} />,
+    route: '/about'
+  },
+  {
+    slug: 'services',
+    name: 'Services',
+    description: 'Service offerings and features',
+    icon: <Briefcase size={20} />,
+    route: '/services'
+  },
+  {
+    slug: 'staff',
+    name: 'Staff Page',
+    description: 'Team members and profiles (content above staff list)',
+    icon: <Users size={20} />,
+    route: '/staff'
+  }
 ];
 
 export const PageContentManagement: React.FC = () => {
-  const [selectedPageSlug, setSelectedPageSlug] = useState<string>('');
-  const [editingContent, setEditingContent] = useState<any>(null);
-  
-  const { data: pageContentData, isFetching, error } = usePageContentQuery(selectedPageSlug);
-  const updateContentMutation = useUpdatePageContentMutation();
+  const [selectedPage, setSelectedPage] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState(false);
 
-  const form = useForm({
-    schema: pageContentSchema,
-    defaultValues: {
-      pageSlug: '',
-      content: [],
-    },
-  });
+  const { data: pageContent, isFetching } = usePageContentQuery(selectedPage || '');
 
-  React.useEffect(() => {
-    if (pageContentData && selectedPageSlug) {
-      form.setValues({
-        pageSlug: selectedPageSlug,
-        content: pageContentData.pageContent.map(item => ({
-          sectionKey: item.sectionKey,
-          contentType: item.contentType,
-          content: item.content,
-        })),
-      });
-    }
-  }, [pageContentData, selectedPageSlug, form.setValues]);
+  const renderPageSelector = () => (
+    <div className={styles.pageSelectorContainer}>
+      <div className={styles.selectorHeader}>
+        <h3>Select a Page to Edit</h3>
+        <p>Choose which page content you want to manage and customize.</p>
+      </div>
+      
+      <div className={styles.pageGrid}>
+        {availablePages.map((page) => (
+          <Card 
+            key={page.slug} 
+            className={`${styles.pageCard} ${selectedPage === page.slug ? styles.selected : ''}`}
+            onClick={() => {
+              setSelectedPage(page.slug);
+              setPreviewMode(false);
+            }}
+          >
+            <CardHeader className={styles.pageCardHeader}>
+              <div className={styles.pageIcon}>
+                {page.icon}
+              </div>
+              <div className={styles.pageInfo}>
+                <CardTitle className={styles.pageCardTitle}>
+                  {page.name}
+                </CardTitle>
+                <CardDescription className={styles.pageCardDescription}>
+                  {page.description}
+                </CardDescription>
+              </div>
+              <div className={styles.pageActions}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(page.route, '_blank');
+                  }}
+                >
+                  <ExternalLink size={14} />
+                </Button>
+              </div>
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
 
-  const handlePageSelect = (pageSlug: string) => {
-    setSelectedPageSlug(pageSlug);
-  };
+      <div className={styles.quickTips}>
+        <h4>Quick Tips:</h4>
+        <ul>
+          <li><strong>Home Page:</strong> Add hero content, feature sections, and call-to-action blocks</li>
+          <li><strong>About Us:</strong> Tell your story with text, images, and highlight cards</li>
+          <li><strong>Services:</strong> Showcase offerings with cards and detailed descriptions</li>
+          <li><strong>Staff:</strong> Add introductory content above the staff member cards</li>
+        </ul>
+      </div>
+    </div>
+  );
 
-  const handleSubmit = async (values: PageContentFormValues) => {
-    try {
-      await updateContentMutation.mutateAsync(values);
-      setEditingContent(null);
-    } catch (error) {
-      console.error("Failed to update page content:", error);
-    }
-  };
-
-  const addContentSection = () => {
-    const newSection = {
-      sectionKey: `section_${Date.now()}`,
-      contentType: 'text',
-      content: '',
-    };
+  const renderPageEditor = () => {
+    const currentPage = availablePages.find(p => p.slug === selectedPage);
     
-    form.setValues(prev => ({
-      ...prev,
-      content: [...prev.content, newSection],
-    }));
-  };
+    if (!currentPage) return null;
 
-  const removeContentSection = (index: number) => {
-    form.setValues(prev => ({
-      ...prev,
-      content: prev.content.filter((_, i) => i !== index),
-    }));
-  };
-
-  const updateContentSection = (index: number, field: string, value: any) => {
-    form.setValues(prev => ({
-      ...prev,
-      content: prev.content.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      ),
-    }));
-  };
-
-  if (!selectedPageSlug) {
     return (
-      <div className={styles.container}>
-        <div className={styles.pageSelector}>
-          <h3>Select a page to edit its content:</h3>
-          <div className={styles.pageGrid}>
-            {AVAILABLE_PAGES.map(page => (
-              <Button
-                key={page.slug}
-                variant="outline"
-                onClick={() => handlePageSelect(page.slug)}
-                className={styles.pageButton}
-              >
-                <Edit size={16} />
-                {page.name}
-              </Button>
-            ))}
+      <div className={styles.pageEditorContainer}>
+        <div className={styles.editorHeader}>
+          <div className={styles.editorInfo}>
+            <Button 
+              variant="ghost" 
+              onClick={() => setSelectedPage(null)}
+              className={styles.backButton}
+            >
+              ← Back to Page Selection
+            </Button>
+            <div className={styles.currentPageInfo}>
+              <div className={styles.pageIconSmall}>
+                {currentPage.icon}
+              </div>
+              <div>
+                <h2 className={styles.currentPageTitle}>
+                  Editing: {currentPage.name}
+                </h2>
+                <p className={styles.currentPageDescription}>
+                  {currentPage.description}
+                </p>
+              </div>
+            </div>
           </div>
+          
+          <div className={styles.editorActions}>
+            <Button
+              variant="outline"
+              onClick={() => window.open(currentPage.route, '_blank')}
+            >
+              <ExternalLink size={16} /> View Live
+            </Button>
+            <Badge variant="secondary" className={styles.pageSlugBadge}>
+              {selectedPage}
+            </Badge>
+          </div>
+        </div>
+
+        {/* Content Statistics */}
+        {pageContent?.pageContent && (
+          <div className={styles.contentStats}>
+            <div className={styles.statItem}>
+              <span className={styles.statNumber}>{pageContent.pageContent.length}</span>
+              <span className={styles.statLabel}>Content Blocks</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statNumber}>
+                {pageContent.pageContent.filter(item => item.contentType === 'text').length}
+              </span>
+              <span className={styles.statLabel}>Text Blocks</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statNumber}>
+                {pageContent.pageContent.filter(item => item.contentType === 'image').length}
+              </span>
+              <span className={styles.statLabel}>Images</span>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statNumber}>
+                {pageContent.pageContent.filter(item => item.contentType === 'card').length}
+              </span>
+              <span className={styles.statLabel}>Cards</span>
+            </div>
+          </div>
+        )}
+
+        <div className={styles.editorContent}>
+          {isFetching ? (
+            <div className={styles.editorSkeleton}>
+              <Skeleton style={{ height: '4rem', marginBottom: 'var(--spacing-4)' }} />
+              <Skeleton style={{ height: '20rem', marginBottom: 'var(--spacing-4)' }} />
+              <Skeleton style={{ height: '8rem' }} />
+            </div>
+          ) : (
+            <PageBuilder pageSlug={selectedPage} className={styles.pageBuilder} />
+          )}
+        </div>
+
+        {/* Special Instructions for Different Pages */}
+        <div className={styles.pageInstructions}>
+          {selectedPage === '_index' && (
+            <div className={styles.instructionCard}>
+              <h4>Home Page Instructions:</h4>
+              <ul>
+                <li>To change the hero background image, add an Image block and it will automatically be used as the background</li>
+                <li>Use Heading blocks for section titles</li>
+                <li>Add Cards to highlight key features or services</li>
+                <li>Use Buttons for call-to-action elements</li>
+              </ul>
+            </div>
+          )}
+          {selectedPage === 'about' && (
+            <div className={styles.instructionCard}>
+              <h4>About Page Instructions:</h4>
+              <ul>
+                <li>Start with a compelling heading about your story</li>
+                <li>Use Text blocks for your company narrative</li>
+                <li>Add Images to show your venue or team</li>
+                <li>Use Cards to highlight key values or milestones</li>
+              </ul>
+            </div>
+          )}
+          {selectedPage === 'services' && (
+            <div className={styles.instructionCard}>
+              <h4>Services Page Instructions:</h4>
+              <ul>
+                <li>Use Cards to showcase each service offering</li>
+                <li>Include Images for visual appeal</li>
+                <li>Add Buttons to link to booking or contact forms</li>
+                <li>Use Dividers to separate different service categories</li>
+              </ul>
+            </div>
+          )}
+          {selectedPage === 'staff' && (
+            <div className={styles.instructionCard}>
+              <h4>Staff Page Instructions:</h4>
+              <ul>
+                <li>This content appears above the staff member cards</li>
+                <li>Add an introductory heading and description</li>
+                <li>Use Images to show team photos or venue shots</li>
+                <li>Staff individual profiles are managed in the Staff tab</li>
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     );
-  }
-
-  const selectedPage = AVAILABLE_PAGES.find(p => p.slug === selectedPageSlug);
+  };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.headerContent}>
-          <h3>Editing: {selectedPage?.name}</h3>
-          <Badge variant="outline">{selectedPageSlug}</Badge>
-        </div>
-        <Button
-          variant="ghost"
-          onClick={() => setSelectedPageSlug('')}
-        >
-          ← Back to Page Selection
-        </Button>
-      </div>
-
-      {isFetching ? (
-        <div className={styles.loading}>
-          <Skeleton style={{ width: '100%', height: '200px' }} />
-        </div>
-      ) : error ? (
-        <div className={styles.error}>
-          <p>Error loading page content: {error instanceof Error ? error.message : 'Unknown error'}</p>
-        </div>
-      ) : (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className={styles.form}>
-            <div className={styles.contentSections}>
-              <div className={styles.sectionHeader}>
-                <h4>Content Sections</h4>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addContentSection}
-                >
-                  <Plus size={16} />
-                  Add Section
-                </Button>
-              </div>
-
-              {form.values.content.map((section, index) => (
-                <div key={index} className={styles.contentSection}>
-                  <div className={styles.sectionControls}>
-                    <FormItem name={`content.${index}.sectionKey`}>
-                      <FormLabel>Section Key</FormLabel>
-                      <FormControl>
-                        <Input
-                          value={section.sectionKey}
-                          onChange={(e) => updateContentSection(index, 'sectionKey', e.target.value)}
-                          placeholder="e.g., hero_title, about_description"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-
-                    <FormItem name={`content.${index}.contentType`}>
-                      <FormLabel>Content Type</FormLabel>
-                      <FormControl>
-                        <Select
-                          value={section.contentType}
-                          onValueChange={(value) => updateContentSection(index, 'contentType', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {CONTENT_TYPES.map(type => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => removeContentSection(index)}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
-
-                  <FormItem name={`content.${index}.content`}>
-                    <FormLabel>Content</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        value={section.content || ''}
-                        onChange={(e) => updateContentSection(index, 'content', e.target.value)}
-                        placeholder="Enter your content here..."
-                        rows={section.contentType === 'html' || section.contentType === 'markdown' ? 8 : 4}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                </div>
-              ))}
-
-              {form.values.content.length === 0 && (
-                <div className={styles.emptyState}>
-                  <p>No content sections yet. Add a section to get started.</p>
-                </div>
-              )}
-            </div>
-
-            <div className={styles.formActions}>
-              <Button
-                type="submit"
-                disabled={updateContentMutation.isPending}
-              >
-                {updateContentMutation.isPending ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      )}
+    <div className={styles.pageContentManagement}>
+      {!selectedPage ? renderPageSelector() : renderPageEditor()}
     </div>
   );
 };
+        

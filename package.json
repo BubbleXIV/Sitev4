@@ -1,5 +1,19 @@
 {
+  "name": "sitev4-crimson-phoenix",
+  "version": "1.0.0",
   "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "vite",
+    "dev:server": "tsx watch server.ts",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "vite build",
+    "build:server": "tsc server.ts --outDir dist --target es2022 --module esnext --moduleResolution bundler --allowSyntheticDefaultImports",
+    "start": "node dist/server.js",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "jose": "6.1.0",
     "kysely": "0.26.3",
@@ -52,6 +66,17 @@
     "vite": "^6.2.0",
     "tsx": "^4.20.3",
     "@hono/node-server": "^1.13.8",
-    "hono": "^4.7.5"
+    "hono": "^4.7.5",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@types/node": "^20.10.4"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }

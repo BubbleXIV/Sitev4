@@ -491,4 +491,7 @@ app.get("*", async (c, next) => {
 });
 serve({ fetch: app.fetch, port: 3344 });
 console.log("Running at http://localhost:3344")
+
+const port = process.env.PORT || 3344;
+serve({ fetch: app.fetch, port: parseInt(port.toString()) });
       

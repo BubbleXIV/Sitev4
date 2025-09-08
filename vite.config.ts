@@ -1,22 +1,40 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "node:path";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react-swc'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import path from 'path'
 
-export default defineConfig(({ isSsrBuild }) => ({
+export default defineConfig({
   plugins: [
-    nodePolyfills({
-      include: ["stream", "crypto", "process"],
-      globals: {
-        Buffer: true,
-        global: true,
-        process: true,
-      },
-      protocolImports: true,
-    }),
     react(),
+    nodePolyfills({
+      include: ['buffer', 'process']
+    })
   ],
-  build: {
-    assetsDir: "_assets",
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './'),
+    },
   },
-}));
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-tabs'],
+        }
+      }
+    }
+  },
+  server: {
+    port: 5173,
+    proxy: {
+      '/_api': {
+        target: 'http://localhost:3344',
+        changeOrigin: true,
+      }
+    }
+  }
+})

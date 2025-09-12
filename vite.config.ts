@@ -1,18 +1,12 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
-  plugins: [
-    react(),
-    nodePolyfills({
-      include: ['buffer', 'process']
-    })
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   build: {
@@ -24,17 +18,17 @@ export default defineConfig({
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
           ui: ['@radix-ui/react-dialog', '@radix-ui/react-tabs'],
+          supabase: ['@supabase/supabase-js'],
         }
       }
     }
   },
   server: {
     port: 5173,
-    proxy: {
-      '/_api': {
-        target: 'http://localhost:3344',
-        changeOrigin: true,
-      }
-    }
+    host: true
+  },
+  preview: {
+    port: 5173,
+    host: true
   }
 })

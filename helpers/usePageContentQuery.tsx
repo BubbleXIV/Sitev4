@@ -8,28 +8,58 @@ import {
   InputType as UpdateInput,
 } from "../endpoints/page-content/update_POST.schema";
 
-export const pageContentQueryKey = (pageSlug: string) => [
-  "pageContent",
-  pageSlug,
-];
-
 export const usePageContentQuery = (pageSlug: string) => {
   return useQuery({
-    queryKey: pageContentQueryKey(pageSlug),
-    queryFn: () => getGetPageContent({ pageSlug }),
+    queryKey: ['pageContent', pageSlug],
+    queryFn: async () => {
+      const { data: pageContent, error } = await supabase
+        .from('page_content')
+        .select('*')
+        .eq('page_slug', pageSlug)
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return { pageContent };
+    },
     enabled: !!pageSlug,
   });
 };
 
 export const useUpdatePageContentMutation = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: (data: UpdateInput) => postUpdatePageContent(data),
+    mutationFn: async ({ pageSlug, content }: { 
+      pageSlug: string; 
+      content: Array<{
+        sectionKey: string;
+        contentType: string;
+        content: string;
+        displayOrder: number;
+      }> 
+    }) => {
+      await supabase
+        .from('page_content')
+        .delete()
+        .eq('page_slug', pageSlug);
+
+      const insertData = content.map(item => ({
+        page_slug: pageSlug,
+        section_key: item.sectionKey,
+        content_type: item.contentType,
+        content: item.content,
+        display_order: item.displayOrder
+      }));
+
+      const { data, error } = await supabase
+        .from('page_content')
+        .insert(insertData)
+        .select();
+      
+      if (error) throw error;
+      return data;
+    },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: pageContentQueryKey(variables.pageSlug),
-      });
+      queryClient.invalidateQueries({ queryKey: ['pageContent', variables.pageSlug] });
     },
   });
 };

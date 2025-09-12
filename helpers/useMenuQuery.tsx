@@ -8,64 +8,58 @@ import { postUpdateMenuItem } from "../endpoints/menu/item/update_POST.schema";
 import { postDeleteMenuItem } from "../endpoints/menu/item/delete_POST.schema";
 
 export const menuQueryKey = ["menu"];
-
-export const useMenuQuery = () => {
-  return useQuery({
-    queryKey: menuQueryKey,
-    queryFn: getGetMenuCategories,
-  });
-};
-
-const invalidateMenuQuery = (queryClient: any) => {
-  queryClient.invalidateQueries({ queryKey: menuQueryKey });
-};
-
-// Category Mutations
-export const useCreateCategoryMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: postCreateMenuCategory,
-    onSuccess: () => invalidateMenuQuery(queryClient),
-  });
-};
-
-export const useUpdateCategoryMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: postUpdateMenuCategory,
-    onSuccess: () => invalidateMenuQuery(queryClient),
-  });
-};
-
-export const useDeleteCategoryMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: postDeleteMenuCategory,
-    onSuccess: () => invalidateMenuQuery(queryClient),
-  });
-};
-
-// Item Mutations
 export const useCreateItemMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postCreateMenuItem,
-    onSuccess: () => invalidateMenuQuery(queryClient),
+    mutationFn: async (data: Database['public']['Tables']['menu_items']['Insert']) => {
+      const { data: result, error } = await supabase
+        .from('menu_items')
+        .insert(data)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
+    },
   });
 };
 
 export const useUpdateItemMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postUpdateMenuItem,
-    onSuccess: () => invalidateMenuQuery(queryClient),
+    mutationFn: async ({ id, ...data }: Database['public']['Tables']['menu_items']['Update'] & { id: number }) => {
+      const { data: result, error } = await supabase
+        .from('menu_items')
+        .update(data)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
+    },
   });
 };
 
 export const useDeleteItemMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postDeleteMenuItem,
-    onSuccess: () => invalidateMenuQuery(queryClient),
+    mutationFn: async ({ id }: { id: number }) => {
+      const { error } = await supabase
+        .from('menu_items')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
+    },
   });
 };

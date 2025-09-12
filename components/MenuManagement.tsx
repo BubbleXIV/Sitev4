@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMenuQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation, useCreateItemMutation, useUpdateItemMutation, useDeleteItemMutation } from '../helpers/useMenuQuery';
+import { useMenuQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation, useCreateItemMutation, useUpdateItemMutation, useDeleteItemMutation } from '../helpers/useSupabaseQuery';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Textarea } from './Textarea';

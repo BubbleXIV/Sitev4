@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Selectable } from 'kysely';
-import { Staff, StaffAlts } from '../helpers/schema';
-import { StaffWithAlts } from '../endpoints/staff/list_GET.schema';
-import { useCreateStaffMutation, useUpdateStaffMutation, useDeleteStaffMutation, useCreateStaffAltMutation, useUpdateStaffAltMutation, useDeleteStaffAltMutation } from '../helpers/useStaffQuery';
+import { Database } from '../types/supabase';
+import { useStaffQuery, useCreateStaffMutation, useUpdateStaffMutation, useDeleteStaffMutation, useCreateStaffAltMutation, useUpdateStaffAltMutation, useDeleteStaffAltMutation } from '../helpers/useSupabaseQuery';
 import { Button } from './Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription, DialogClose } from './Dialog';
 import { Form, useForm, FormItem, FormLabel, FormControl, FormMessage } from './Form';
@@ -13,7 +11,11 @@ import { Plus, Edit, Trash2, UserPlus, Users, X } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './Avatar';
 import styles from './StaffManagement.module.css';
 
-type StaffMember = Selectable<Staff> | Selectable<StaffAlts>;
+type StaffMember = Database['public']['Tables']['staff']['Row'] | Database['public']['Tables']['staff_alts']['Row'];
+
+type StaffWithAlts = Database['public']['Tables']['staff']['Row'] & {
+  alts: Database['public']['Tables']['staff_alts']['Row'][];
+};
 
 const staffFormSchema = z.object({
   name: z.string().min(1, "Name is required"),

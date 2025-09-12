@@ -3,8 +3,7 @@ import { z } from 'zod';
 import { useForm, Form, FormItem, FormLabel, FormControl, FormMessage } from './Form';
 import { Input } from './Input';
 import { Button } from './Button';
-import { useUpdateSiteSettingsMutation } from '../helpers/useSiteSettingsQuery';
-import { SiteSettingsMap } from '../endpoints/site-settings/get_GET.schema';
+import { useUpdateSiteSettingsMutation } from '../helpers/useSupabaseQuery';
 import styles from './SiteSettingsManagement.module.css';
 
 const settingsSchema = z.object({
@@ -15,7 +14,7 @@ const settingsSchema = z.object({
 
 type SettingsFormValues = z.infer<typeof settingsSchema>;
 
-export const SiteSettingsManagement: React.FC<{ settings: SiteSettingsMap }> = ({ settings }) => {
+export const SiteSettingsManagement: React.FC<{ settings: Record<string, string | null> }> = ({ settings }) => {
   const updateSettingsMutation = useUpdateSiteSettingsMutation();
 
   const form = useForm({

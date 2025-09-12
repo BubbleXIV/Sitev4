@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { useAuth } from "../helpers/useAuth";
-import { useStaffListQuery } from "../helpers/useStaffQuery";
-import { useSiteSettingsQuery } from "../helpers/useSiteSettingsQuery";
-import { usePagesQuery } from "../helpers/usePagesQuery";
-import { useImagesQuery } from "../helpers/useImageQuery";
-import { useAdminUsersQuery } from "../helpers/useAdminUsersQuery";
+import { useStaffQuery as useStaffListQuery, useSiteSettingsQuery, usePagesQuery, useImagesQuery, useAdminUsersQuery } from "../helpers/useSupabaseQuery";
 import { User, Settings, Image as ImageIcon, Link as LinkIcon, Users, FileText, Menu, Navigation } from "lucide-react";
 import { Skeleton } from "../components/Skeleton";
 import { StaffManagement } from "../components/StaffManagement";

@@ -1,6 +1,6 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import { useMenuQuery } from "../helpers/useMenuQuery";
+import { useMenuQuery } from '../helpers/useSupabaseQuery';
 import { Skeleton } from "../components/Skeleton";
 import { AlertTriangle, UtensilsCrossed } from "lucide-react";
 import styles from "./menu.module.css";

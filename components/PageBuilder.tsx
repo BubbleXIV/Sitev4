@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../helpers/useAuth';
-import { usePageContentQuery, useUpdatePageContentMutation } from '../helpers/usePageContentQuery';
-import { PageContentItem } from '../endpoints/page-content/get_GET.schema';
+import { Database } from '../types/supabase';
+import { usePageContentQuery, useUpdatePageContentMutation } from '../helpers/useSupabaseQuery';
 import { ContentBlock } from './ContentBlock';
 import { BlockTypePicker } from './BlockTypePicker';
 import { Button } from './Button';
@@ -9,6 +9,22 @@ import { Skeleton } from './Skeleton';
 import { Save, Loader2 } from 'lucide-react';
 import styles from './PageBuilder.module.css';
 
+// Define the page content item type based on Supabase
+type PageContentItem = {
+  id: number;
+  page: string;
+  section: string;
+  content: any;
+  created_at: string;
+  updated_at: string;
+};
+
+// Convert to the format expected by ContentBlock
+type ContentBlockItem = {
+  sectionKey: string;
+  contentType: string;
+  content: string;
+};
 
 interface PageBuilderProps {
   pageSlug: string;
@@ -17,36 +33,38 @@ interface PageBuilderProps {
 
 export const PageBuilder: React.FC<PageBuilderProps> = ({ pageSlug, className }) => {
   const { authState } = useAuth();
-  const { data, isFetching, error } = usePageContentQuery(pageSlug);
+  const { data, isFetching, error } = usePageContentQuery();
   const updateMutation = useUpdatePageContentMutation();
 
-  const [content, setContent] = useState<PageContentItem[]>([]);
+  const [content, setContent] = useState<ContentBlockItem[]>([]);
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    if (data?.pageContent) {
-      // Sort by displayOrder, fallback to array order
-      const sortedContent = [...data.pageContent].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
-      setContent(sortedContent);
+    if (data?.content) {
+      // Filter content for this page and convert to expected format
+      const pageContent = data.content
+        .filter(item => item.page === pageSlug)
+        .map(item => ({
+          sectionKey: item.section,
+          contentType: 'text', // Default type, could be stored in content
+          content: typeof item.content === 'string' ? item.content : JSON.stringify(item.content)
+        }));
+      
+      setContent(pageContent);
       setIsDirty(false);
     }
-  }, [data]);
+  }, [data, pageSlug]);
 
-  const handleContentChange = (newContent: PageContentItem[]) => {
+  const handleContentChange = (newContent: ContentBlockItem[]) => {
     setContent(newContent);
     setIsDirty(true);
   };
 
   const handleAddBlock = (type: string) => {
-    const newBlock: PageContentItem = {
-      id: 0, // Temporary ID, backend will assign real one
+    const newBlock: ContentBlockItem = {
       sectionKey: `${type}-${Math.random().toString(36).substring(2, 10)}`,
       contentType: type,
       content: '{}', // Default empty content
-      pageSlug: pageSlug,
-      displayOrder: content.length,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     };
     handleContentChange([...content, newBlock]);
   };
@@ -63,21 +81,20 @@ export const PageBuilder: React.FC<PageBuilderProps> = ({ pageSlug, className })
     handleContentChange(newContent);
   };
 
-  const handleSave = () => {
-    const contentToSave = content.map((item, index) => ({
-      sectionKey: item.sectionKey,
-      contentType: item.contentType,
-      content: item.content,
-      displayOrder: index,
-    }));
-
-    updateMutation.mutate(
-      { pageSlug, content: contentToSave },
-      {
-        onSuccess: () => setIsDirty(false),
-        onError: (e) => console.error("Failed to save page content:", e),
+  const handleSave = async () => {
+    try {
+      // Save each content block
+      for (const block of content) {
+        await updateMutation.mutateAsync({
+          page: pageSlug,
+          section: block.sectionKey,
+          content: block.content
+        });
       }
-    );
+      setIsDirty(false);
+    } catch (error) {
+      console.error("Failed to save page content:", error);
+    }
   };
 
   if (authState.type !== 'authenticated') {
@@ -94,13 +111,13 @@ export const PageBuilder: React.FC<PageBuilderProps> = ({ pageSlug, className })
   }
 
   if (error) {
-    return <div className={styles.errorState}>Error loading page content: {error.message}</div>;
+    return <div className={styles.errorState}>Error loading page content: {error instanceof Error ? error.message : 'Unknown error'}</div>;
   }
 
   return (
     <div className={`${styles.container} ${className || ''}`}>
       <header className={styles.header}>
-        <h2 className={styles.title}>Page Editor</h2>
+        <h2 className={styles.title}>Page Editor: {pageSlug}</h2>
         <Button onClick={handleSave} disabled={!isDirty || updateMutation.isPending}>
           {updateMutation.isPending ? (
             <>
@@ -123,6 +140,12 @@ export const PageBuilder: React.FC<PageBuilderProps> = ({ pageSlug, className })
             onDelete={handleDeleteBlock}
           />
         ))}
+        
+        {content.length === 0 && (
+          <div className={styles.emptyState}>
+            <p>No content blocks yet. Add your first block to get started!</p>
+          </div>
+        )}
       </div>
 
       <BlockTypePicker onSelectBlock={handleAddBlock} />

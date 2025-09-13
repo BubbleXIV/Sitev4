@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { useAuth } from "../helpers/useAuth";
+import { Database } from '../types/supabase';
 import { useStaffQuery as useStaffListQuery, useSiteSettingsQuery, usePagesQuery, useImagesQuery, useAdminUsersQuery } from "../helpers/useSupabaseQuery";
 import { User, Settings, Image as ImageIcon, Link as LinkIcon, Users, FileText, Menu, Navigation } from "lucide-react";
 import { Skeleton } from "../components/Skeleton";

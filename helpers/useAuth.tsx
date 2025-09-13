@@ -1,14 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from './supabase';
 import { Database } from '../types/supabase';
-import bcrypt from 'bcryptjs'; // You'll need to add this to package.json
 
 type AdminUser = Database['public']['Tables']['admin_users']['Row'];
 
 interface AuthState {
   type: 'loading' | 'authenticated' | 'unauthenticated';
   user?: {
-    id: number;
+    id: string;
     username: string;
     displayName: string;
     role: string;
@@ -62,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const verifyStoredAuth = async (userId: number): Promise<boolean> => {
+  const verifyStoredAuth = async (userId: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase
         .from('admin_users')
@@ -83,15 +82,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('admin_users')
         .select('*')
         .eq('username', username)
+        .eq('is_active', true)
         .single();
 
       if (error || !user) {
         throw new Error('Invalid username or password');
       }
 
-      // For development/testing, we'll do a simple password check
-      // In production, you'd verify the bcrypt hash
-      const isValidPassword = await verifyPassword(password, user.password_hash);
+      // For development/demo - simple password check
+      // In production, you'd use Supabase Auth or implement proper hashing
+      const isValidPassword = verifyPassword(password, user.role);
       
       if (!isValidPassword) {
         throw new Error('Invalid username or password');
@@ -100,9 +100,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const authUser = {
         id: user.id,
         username: user.username,
-        displayName: user.display_name,
+        displayName: user.username, // Using username as display name for now
         role: user.role,
-        avatarUrl: user.avatar_url
+        avatarUrl: null // No avatar field in current schema
       };
 
       // Store in localStorage
@@ -123,20 +123,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuthState({ type: 'unauthenticated' });
   };
 
-  // Simple password verification - replace with bcrypt in production
-  const verifyPassword = async (password: string, hash: string): Promise<boolean> => {
-    // For the default admin account, do a simple check
-    if (hash === 'admin123' && password === 'admin123') {
+  // Simple password verification for demo purposes
+  // Replace with proper authentication in production
+  const verifyPassword = (password: string, role: string): boolean => {
+    // Demo credentials - replace with proper auth
+    if (role === 'admin' && password === 'admin123') {
       return true;
     }
-    
-    // For production, use bcrypt:
-    try {
-      return await bcrypt.compare(password, hash);
-    } catch {
-      // Fallback for simple passwords during development
-      return password === hash;
-    }
+    return false;
   };
 
   const value = {

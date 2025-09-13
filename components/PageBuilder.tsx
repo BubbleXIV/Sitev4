@@ -3,7 +3,7 @@ import { useAuth } from '../helpers/useAuth';
 import { Database } from '../types/supabase';
 import { usePageContentQuery, useUpdatePageContentMutation } from '../helpers/useSupabaseQuery';
 import { ContentBlock } from './ContentBlock';
-import { BlockTypePicker } from './BlockTypePicker';
+import BlockTypePicker from './BlockTypePicker';
 import { Button } from './Button';
 import { Skeleton } from './Skeleton';
 import { Save, Loader2 } from 'lucide-react';

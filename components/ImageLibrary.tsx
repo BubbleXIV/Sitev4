@@ -4,6 +4,7 @@ import { Input } from './Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './Card';
 import { Badge } from './Badge';
 import { Skeleton } from './Skeleton';
+import { Database } from '../types/supabase';
 import { useImagesQuery, useUploadImageMutation, useDeleteImageMutation } from '../helpers/useSupabaseQuery';
 import { 
   Upload, 

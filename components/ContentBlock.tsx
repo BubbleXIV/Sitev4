@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { PageContentItem } from '../endpoints/page-content/get_GET.schema';
+import { Database } from '../types/supabase';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Textarea } from './Textarea';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './Car
 import { Badge } from './Badge';
 import { Separator } from './Separator';
 import { Avatar, AvatarFallback, AvatarImage } from './Avatar';
+import { Form, useForm, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from './Form';
 import { 
   Edit, 
   Trash2, 
@@ -27,8 +28,20 @@ import {
 } from 'lucide-react';
 import styles from './ContentBlock.module.css';
 
+// Assuming your page content structure from the database
+type PageContentItem = {
+  id: number;
+  page: string;
+  section: string;
+  content: any;
+};
+
 interface ContentBlockProps {
-  block: PageContentItem;
+  block: {
+    sectionKey: string;
+    contentType: string;
+    content: string;
+  };
   onUpdate: (sectionKey: string, content: string) => void;
   onDelete: (sectionKey: string) => void;
 }
@@ -262,84 +275,84 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
           </div>
         );
 
-case 'button':
-  return (
-    <div className={styles.editForm}>
-      <FormItem name="buttonText">
-        <FormLabel>Button Text</FormLabel>
-        <FormControl>
-          <Input
-            value={editContent.buttonText || ''}
-            onChange={(e) => setEditContent(prev => ({ ...prev, buttonText: e.target.value }))}
-            placeholder="Click Here, Learn More, Contact Us..."
-          />
-        </FormControl>
-      </FormItem>
+      case 'button':
+        return (
+          <div className={styles.editForm}>
+            <FormItem name="buttonText">
+              <FormLabel>Button Text</FormLabel>
+              <FormControl>
+                <Input
+                  value={editContent.buttonText || ''}
+                  onChange={(e) => setEditContent(prev => ({ ...prev, buttonText: e.target.value }))}
+                  placeholder="Click Here, Learn More, Contact Us..."
+                />
+              </FormControl>
+            </FormItem>
 
-      <FormItem name="buttonUrl">
-        <FormLabel>Button Link</FormLabel>
-        <FormControl>
-          <Input
-            value={editContent.buttonUrl || ''}
-            onChange={(e) => setEditContent(prev => ({ ...prev, buttonUrl: e.target.value }))}
-            placeholder="/about, https://discord.gg/..., mailto:info@..."
-          />
-        </FormControl>
-        <FormDescription>
-          • Internal links: /about, /menu, /staff<br/>
-          • External links: https://example.com<br/>
-          • Email: mailto:contact@crimsonphoenix.com<br/>
-          • Phone: tel:+1234567890
-        </FormDescription>
-      </FormItem>
+            <FormItem name="buttonUrl">
+              <FormLabel>Button Link</FormLabel>
+              <FormControl>
+                <Input
+                  value={editContent.buttonUrl || ''}
+                  onChange={(e) => setEditContent(prev => ({ ...prev, buttonUrl: e.target.value }))}
+                  placeholder="/about, https://discord.gg/..., mailto:info@..."
+                />
+              </FormControl>
+              <FormDescription>
+                • Internal links: /about, /menu, /staff<br/>
+                • External links: https://example.com<br/>
+                • Email: mailto:contact@crimsonphoenix.com<br/>
+                • Phone: tel:+1234567890
+              </FormDescription>
+            </FormItem>
 
-      <div className={styles.styleOptions}>
-        <Select value={editContent.style || 'default'} onValueChange={(value) => 
-          setEditContent(prev => ({ ...prev, style: value as any }))}>
-          <SelectTrigger>
-            <SelectValue placeholder="Button Style" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="default">Default</SelectItem>
-            <SelectItem value="primary">Primary</SelectItem>
-            <SelectItem value="secondary">Secondary</SelectItem>
-            <SelectItem value="accent">Accent</SelectItem>
-          </SelectContent>
-        </Select>
+            <div className={styles.styleOptions}>
+              <Select value={editContent.style || 'default'} onValueChange={(value) => 
+                setEditContent(prev => ({ ...prev, style: value as any }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Button Style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default</SelectItem>
+                  <SelectItem value="primary">Primary</SelectItem>
+                  <SelectItem value="secondary">Secondary</SelectItem>
+                  <SelectItem value="accent">Accent</SelectItem>
+                </SelectContent>
+              </Select>
 
-        <Select value={editContent.alignment || 'left'} onValueChange={(value) => 
-          setEditContent(prev => ({ ...prev, alignment: value as any }))}>
-          <SelectTrigger>
-            <SelectValue placeholder="Button Alignment" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="left">Left</SelectItem>
-            <SelectItem value="center">Center</SelectItem>
-            <SelectItem value="right">Right</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+              <Select value={editContent.alignment || 'left'} onValueChange={(value) => 
+                setEditContent(prev => ({ ...prev, alignment: value as any }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Button Alignment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="left">Left</SelectItem>
+                  <SelectItem value="center">Center</SelectItem>
+                  <SelectItem value="right">Right</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-      {/* Preview of what the link will do */}
-      {editContent.buttonUrl && (
-        <div className={styles.linkPreview}>
-          <p><strong>Link Preview:</strong></p>
-          {editContent.buttonUrl.startsWith('http') && (
-            <p>🌐 Opens in new tab: {editContent.buttonUrl}</p>
-          )}
-          {editContent.buttonUrl.startsWith('/') && (
-            <p>🏠 Internal page: {editContent.buttonUrl}</p>
-          )}
-          {editContent.buttonUrl.startsWith('mailto:') && (
-            <p>📧 Opens email: {editContent.buttonUrl.replace('mailto:', '')}</p>
-          )}
-          {editContent.buttonUrl.startsWith('tel:') && (
-            <p>📞 Opens phone: {editContent.buttonUrl.replace('tel:', '')}</p>
-          )}
-        </div>
-      )}
-    </div>
-  );
+            {/* Preview of what the link will do */}
+            {editContent.buttonUrl && (
+              <div className={styles.linkPreview}>
+                <p><strong>Link Preview:</strong></p>
+                {editContent.buttonUrl.startsWith('http') && (
+                  <p>🌐 Opens in new tab: {editContent.buttonUrl}</p>
+                )}
+                {editContent.buttonUrl.startsWith('/') && (
+                  <p>🏠 Internal page: {editContent.buttonUrl}</p>
+                )}
+                {editContent.buttonUrl.startsWith('mailto:') && (
+                  <p>📧 Opens email: {editContent.buttonUrl.replace('mailto:', '')}</p>
+                )}
+                {editContent.buttonUrl.startsWith('tel:') && (
+                  <p>📞 Opens phone: {editContent.buttonUrl.replace('tel:', '')}</p>
+                )}
+              </div>
+            )}
+          </div>
+        );
 
       case 'divider':
         return (
@@ -429,38 +442,51 @@ case 'button':
             </Card>
           </div>
         );
-// In your ContentBlock.tsx, replace the button preview section with this:
 
-case 'button':
-  return (
-    <div className={`${styles.buttonContent} ${styles[`align-${editContent.alignment || 'left'}`]}`}>
-      {editContent.buttonUrl ? (
-        // If URL exists, make it a clickable link
-        <Button 
-          asChild
-          variant={editContent.style === 'primary' ? 'default' : 'outline'}
-          className={styles[`style-${editContent.style || 'default'}`]}
-        >
-          <a 
-            href={editContent.buttonUrl} 
-            target={editContent.buttonUrl.startsWith('http') ? '_blank' : '_self'}
-            rel={editContent.buttonUrl.startsWith('http') ? 'noopener noreferrer' : undefined}
-          >
-            {editContent.buttonText || 'Button Text'}
-          </a>
-        </Button>
-      ) : (
-        // If no URL, show as disabled button
-        <Button 
-          variant={editContent.style === 'primary' ? 'default' : 'outline'}
-          className={styles[`style-${editContent.style || 'default'}`]}
-          disabled
-        >
-          {editContent.buttonText || 'Button Text'}
-        </Button>
-      )}
-    </div>
-  );
+      case 'button':
+        return (
+          <div className={`${styles.buttonContent} ${styles[`align-${editContent.alignment || 'left'}`]}`}>
+            {editContent.buttonUrl ? (
+              <Button 
+                asChild
+                variant={editContent.style === 'primary' ? 'default' : 'outline'}
+                className={styles[`style-${editContent.style || 'default'}`]}
+              >
+                <a 
+                  href={editContent.buttonUrl} 
+                  target={editContent.buttonUrl.startsWith('http') ? '_blank' : '_self'}
+                  rel={editContent.buttonUrl.startsWith('http') ? 'noopener noreferrer' : undefined}
+                >
+                  {editContent.buttonText || 'Button Text'}
+                </a>
+              </Button>
+            ) : (
+              <Button 
+                variant={editContent.style === 'primary' ? 'default' : 'outline'}
+                className={styles[`style-${editContent.style || 'default'}`]}
+                disabled
+              >
+                {editContent.buttonText || 'Button Text'}
+              </Button>
+            )}
+          </div>
+        );
+
+      case 'divider':
+        return (
+          <div className={styles.dividerContent}>
+            <Separator className={styles[`style-${editContent.style || 'default'}`]} />
+          </div>
+        );
+
+      default:
+        return (
+          <div className={styles.textContent}>
+            <p>{editContent.text || 'Unsupported content type'}</p>
+          </div>
+        );
+    }
+  };
 
   const getBlockIcon = () => {
     switch (block.contentType) {

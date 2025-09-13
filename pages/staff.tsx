@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
-import { useStaffListQuery } from "../helpers/useStaffQuery";
-import { StaffWithAlts } from "../endpoints/staff/list_GET.schema";
+import { Database } from '../types/supabase';
+import { useStaffListQuery } from "../helpers/useSupabaseQuery";
+// Replace StaffWithAlts with Supabase types:
+// type StaffWithAlts = Database['public']['Tables']['staff']['Row'] & {
+//   alts: Database['public']['Tables']['staff_alts']['Row'][]
+// }
 import { Skeleton } from "../components/Skeleton";
 import { Users, Repeat, ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./staff.module.css";

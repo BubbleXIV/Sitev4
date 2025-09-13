@@ -336,3 +336,15 @@
     transform: rotate(360deg);
   }
 }
+
+.linkPreview {
+  background: var(--muted);
+  padding: var(--spacing-3);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--primary);
+  font-size: 0.875rem;
+}
+
+.linkPreview p {
+  margin: var(--spacing-1) 0;
+}

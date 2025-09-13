@@ -5,7 +5,8 @@ import { Button } from "../components/Button";
 import { Skeleton } from "../components/Skeleton";
 import { ArrowRight } from "lucide-react";
 import { useAuth } from "../helpers/useAuth";
-import { usePageContentQuery } from "../helpers/usePageContentQuery";
+import { Database } from '../types/supabase';
+import { usePageQuery, useServicesQuery } from '../helpers/useSupabaseQuery';
 import { PageBuilder } from "../components/PageBuilder";
 import styles from "./_index.module.css";
 

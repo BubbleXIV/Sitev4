@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Database } from '../types/supabase';
-import { useStaffListQuery } from "../helpers/useSupabaseQuery";
-// Replace StaffWithAlts with Supabase types:
-// type StaffWithAlts = Database['public']['Tables']['staff']['Row'] & {
-//   alts: Database['public']['Tables']['staff_alts']['Row'][]
-// }
+import { Database } from '../types/supabase';
+import { useStaffListQuery, StaffWithAlts } from "../helpers/useSupabaseQuery";
 import { Skeleton } from "../components/Skeleton";
 import { Users, Repeat, ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./staff.module.css";

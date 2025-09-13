@@ -495,3 +495,5 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
     </div>
   );
 };
+
+export default BlockTypePicker;

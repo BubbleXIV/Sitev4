@@ -10,13 +10,10 @@ import { Save, Loader2 } from 'lucide-react';
 import styles from './PageBuilder.module.css';
 
 // Define the page content item type based on Supabase
-type PageContentItem = {
-  id: number;
-  page: string;
-  section: string;
-  content: any;
-  created_at: string;
-  updated_at: string;
+type PageContentItem = Database['public']['Tables']['page_content']['Row'] & {
+  sectionKey: string;
+  contentType: string;
+  displayOrder?: number;
 };
 
 // Convert to the format expected by ContentBlock

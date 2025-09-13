@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { useForm, Form, FormItem, FormLabel, FormControl, FormMessage } from './Form';
 import { Input } from './Input';
 import { Button } from './Button';
-import { useUpdateSiteSettingsMutation } from '../helpers/useSupabaseQuery';
+import { Database } from '../types/supabase';
+import { useSiteSettingsQuery, useUpdateSiteSettingMutation } from '../helpers/useSupabaseQuery';
 import styles from './SiteSettingsManagement.module.css';
 
 const settingsSchema = z.object({

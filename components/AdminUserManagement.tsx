@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAdminUsersQuery, useCreateAdminUserMutation, useUpdateAdminUserMutation, useDeleteAdminUserMutation } from '../helpers/useAdminUsersQuery';
+import { useAdminUsersQuery, useCreateAdminUserMutation, useUpdateAdminUserMutation, useDeleteAdminUserMutation } from '../helpers/useSupabaseQuery';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Form, useForm, FormItem, FormLabel, FormControl, FormMessage } from './Form';

@@ -1,7 +1,8 @@
 import React from "react";
 import { Helmet } from "react-helmet";
 import { useAuth } from "../helpers/useAuth";
-import { usePageContentQuery } from "../helpers/usePageContentQuery";
+import { Database } from '../types/supabase';
+import { usePageQuery, useServicesQuery } from '../helpers/useSupabaseQuery';
 import { PageBuilder } from "../components/PageBuilder";
 import { Skeleton } from "../components/Skeleton";
 import { AlertTriangle } from "lucide-react";

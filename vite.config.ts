@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, '.'),
     },
   },
   build: {
@@ -19,6 +19,7 @@ export default defineConfig({
           router: ['react-router-dom'],
           ui: ['@radix-ui/react-dialog', '@radix-ui/react-tabs'],
           supabase: ['@supabase/supabase-js'],
+          query: ['@tanstack/react-query']
         }
       }
     }

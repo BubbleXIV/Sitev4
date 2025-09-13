@@ -15,7 +15,7 @@ import {
   ExternalLink 
 } from 'lucide-react';
 import { PageBuilder } from './PageBuilder';
-import { usePageContentQuery } from '../helpers/usePageContentQuery';
+import { usePageContentQuery } from '../helpers/useSupabaseQuery';';
 import styles from './PageContentManagement.module.css';
 
 interface PageOption {

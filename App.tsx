@@ -16,14 +16,6 @@ import PageLayout_5 from "./pages/_index.pageLayout.tsx";
 import Page_6 from "./pages/services.tsx";
 import PageLayout_6 from "./pages/services.pageLayout.tsx";
 
-if (!window.requestIdleCallback) {
-  window.requestIdleCallback = (cb) => {
-    setTimeout(cb, 1);
-  };
-}
-
-import "./base.css";
-
 class ErrorBoundary extends React.Component
   { children: React.ReactNode },
   { hasError: boolean; error?: Error }
@@ -55,16 +47,8 @@ class ErrorBoundary extends React.Component
   }
 }
 
-// Then wrap your existing App function return with:
-export function App() {
-  return (
-    <ErrorBoundary>
-      <BrowserRouter>
-        {/* ... rest of your existing app code */}
-      </BrowserRouter>
-    </ErrorBoundary>
-  );
-}
+import "./base.css";
+
 
 const fileNameToRoute = new Map([["./pages/menu.tsx","/menu"],["./pages/about.tsx","/about"],["./pages/admin.tsx","/admin"],["./pages/login.tsx","/login"],["./pages/staff.tsx","/staff"],["./pages/_index.tsx","/"],["./pages/services.tsx","/services"]]);
 const fileNameToComponent = new Map([
@@ -148,13 +132,14 @@ function NotFound() {
     </div>
   );
 }
-
+   
 export function App() {
   return (
-    <BrowserRouter>
-      <GlobalContextProviders>
-        <Routes>
-          {toElement({ trie: buildLayoutTrie({
+    <ErrorBoundary>
+      <BrowserRouter>
+        <GlobalContextProviders>
+          <Routes>
+            {toElement({ trie: buildLayoutTrie({
 "./pages/menu.tsx": PageLayout_0,
 "./pages/about.tsx": PageLayout_1,
 "./pages/admin.tsx": PageLayout_2,
@@ -163,9 +148,10 @@ export function App() {
 "./pages/_index.tsx": PageLayout_5,
 "./pages/services.tsx": PageLayout_6,
 }), fileNameToRoute, makePageRoute })} 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </GlobalContextProviders>
-    </BrowserRouter>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </GlobalContextProviders>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }

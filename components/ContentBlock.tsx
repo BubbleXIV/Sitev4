@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { PageContentItem } from '../endpoints/page-content/get_GET.schema';
+import { Database } from '../types/supabase';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Textarea } from './Textarea';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './Car
 import { Badge } from './Badge';
 import { Separator } from './Separator';
 import { Avatar, AvatarFallback, AvatarImage } from './Avatar';
+import { Form, FormItem, FormLabel, FormControl, FormDescription } from './Form';
 import { 
   Edit, 
   Trash2, 
@@ -28,7 +29,11 @@ import {
 import styles from './ContentBlock.module.css';
 
 interface ContentBlockProps {
-  block: PageContentItem;
+  block: {
+    sectionKey: string;
+    contentType: string;
+    content: string;
+  };
   onUpdate: (sectionKey: string, content: string) => void;
   onDelete: (sectionKey: string) => void;
 }
@@ -391,28 +396,48 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
             </Card>
           </div>
         );
-
-      case 'button':
+case 'button':
         return (
           <div className={`${styles.buttonContent} ${styles[`align-${editContent.alignment || 'left'}`]}`}>
-            <Button 
-              variant={editContent.style === 'primary' ? 'default' : 'outline'}
-              className={styles[`style-${editContent.style || 'default'}`]}
-            >
-              {editContent.buttonText || 'Button Text'}
-            </Button>
+            {editContent.buttonUrl ? (
+              <Button 
+                asChild
+                variant={editContent.style === 'primary' ? 'default' : 'outline'}
+                className={styles[`style-${editContent.style || 'default'}`]}
+              >
+                <a 
+                  href={editContent.buttonUrl} 
+                  target={editContent.buttonUrl.startsWith('http') ? '_blank' : '_self'}
+                  rel={editContent.buttonUrl.startsWith('http') ? 'noopener noreferrer' : undefined}
+                >
+                  {editContent.buttonText || 'Button Text'}
+                </a>
+              </Button>
+            ) : (
+              <Button 
+                variant={editContent.style === 'primary' ? 'default' : 'outline'}
+                className={styles[`style-${editContent.style || 'default'}`]}
+                disabled
+              >
+                {editContent.buttonText || 'Button Text'}
+              </Button>
+            )}
           </div>
         );
 
       case 'divider':
         return (
           <div className={styles.dividerContent}>
-            <Separator className={`${styles.divider} ${styles[`style-${editContent.style || 'default'}`]}`} />
+            <Separator className={styles[`style-${editContent.style || 'default'}`]} />
           </div>
         );
 
       default:
-        return <div className={styles.unknownBlock}>Unknown block type: {block.contentType}</div>;
+        return (
+          <div className={styles.textContent}>
+            <p>{editContent.text || 'Unsupported content type'}</p>
+          </div>
+        );
     }
   };
 

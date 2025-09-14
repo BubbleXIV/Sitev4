@@ -6,6 +6,8 @@ import { postDeleteStaff, InputType as DeleteStaffInput } from '../endpoints/sta
 import { postCreateStaffAlt, InputType as CreateAltInput } from '../endpoints/staff/alts/create_POST.schema';
 import { postUpdateStaffAlt, InputType as UpdateAltInput } from '../endpoints/staff/alts/update_POST.schema';
 import { postDeleteStaffAlt, InputType as DeleteAltInput } from '../endpoints/staff/alts/delete_POST.schema';
+import { supabase } from './supabase';
+import { Database } from '../types/supabase';
 
 export const STAFF_QUERY_KEY = ['staff', 'list'];
 

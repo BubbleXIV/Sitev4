@@ -6,6 +6,11 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+console.log('Supabase env check:', {
+  url: import.meta.env.VITE_SUPABASE_URL ? 'SET' : 'MISSING',
+  key: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'SET' : 'MISSING'
+});
+
 export interface Database {
   public: {
     Tables: {
@@ -297,3 +302,4 @@ export interface Database {
     }
   }
 }
+

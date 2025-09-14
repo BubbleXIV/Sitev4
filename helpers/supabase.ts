@@ -1,37 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 import { Database } from '../types/supabase'
 
-// Temporarily hardcoded for testing - replace with your actual values
 const supabaseUrl = 'https://aypjimhfxadmqxxarmhw.supabase.co'
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5cGppbWhmeGFkbXF4eGFybWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MTYyMzAsImV4cCI6MjA3MzI5MjIzMH0.XsNE12hoUa5yaZrOXU3OKpRQ6d-SpbSNXs41j8kCZPE'
 
-// Debug logging
-console.log('Supabase initialization:', {
-  url: supabaseUrl,
-  keyPresent: supabaseAnonKey !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5cGppbWhmeGFkbXF4eGFybWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MTYyMzAsImV4cCI6MjA3MzI5MjIzMH0.XsNE12hoUa5yaZrOXU3OKpRQ6d-SpbSNXs41j8kCZPE',
-  keyLength: supabaseAnonKey.length
-});
-
-// Environment variable debugging (commented out for now)
-// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-// console.log('Environment variables:', {
-//   NODE_ENV: import.meta.env.NODE_ENV,
-//   MODE: import.meta.env.MODE,
-//   urlPresent: !!import.meta.env.VITE_SUPABASE_URL,
-//   keyPresent: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
-//   allEnvKeys: Object.keys(import.meta.env)
-// });
-
-if (!supabaseUrl || !supabaseAnonKey || supabaseAnonKey === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5cGppbWhmeGFkbXF4eGFybWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MTYyMzAsImV4cCI6MjA3MzI5MjIzMH0.XsNE12hoUa5yaZrOXU3OKpRQ6d-SpbSNXs41j8kCZPE') {
-  console.error('Supabase configuration error:', {
-    urlMissing: !supabaseUrl,
-    keyMissing: !supabaseAnonKey,
-    keyIsPlaceholder: supabaseAnonKey === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5cGppbWhmeGFkbXF4eGFybWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MTYyMzAsImV4cCI6MjA3MzI5MjIzMH0.XsNE12hoUa5yaZrOXU3OKpRQ6d-SpbSNXs41j8kCZPE'
-  });
-  throw new Error('Missing or invalid Supabase environment variables - please replace YOUR_ACTUAL_ANON_KEY_HERE with your real anon key')
-}
+console.log('Supabase initialized with hardcoded credentials');
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {

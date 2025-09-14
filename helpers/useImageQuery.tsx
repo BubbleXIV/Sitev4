@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getListImages } from "../endpoints/images/list_GET.schema";
 import { postUploadImage } from "../endpoints/images/upload_POST.schema";
 import { postDeleteImage } from "../endpoints/images/delete_POST.schema";
+import { supabase } from './supabase';
+import { Database } from '../types/supabase';
 
 export const imagesQueryKey = ["images"];
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Database } from '../types/supabase';
+import { PageContentItem } from '../endpoints/page-content/get_GET.schema';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Textarea } from './Textarea';
@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './Car
 import { Badge } from './Badge';
 import { Separator } from './Separator';
 import { Avatar, AvatarFallback, AvatarImage } from './Avatar';
-import { Form, useForm, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from './Form';
 import { 
   Edit, 
   Trash2, 
@@ -28,20 +27,8 @@ import {
 } from 'lucide-react';
 import styles from './ContentBlock.module.css';
 
-// Assuming your page content structure from the database
-type PageContentItem = {
-  id: number;
-  page: string;
-  section: string;
-  content: any;
-};
-
 interface ContentBlockProps {
-  block: {
-    sectionKey: string;
-    contentType: string;
-    content: string;
-  };
+  block: PageContentItem;
   onUpdate: (sectionKey: string, content: string) => void;
   onDelete: (sectionKey: string) => void;
 }
@@ -278,34 +265,16 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
       case 'button':
         return (
           <div className={styles.editForm}>
-            <FormItem name="buttonText">
-              <FormLabel>Button Text</FormLabel>
-              <FormControl>
-                <Input
-                  value={editContent.buttonText || ''}
-                  onChange={(e) => setEditContent(prev => ({ ...prev, buttonText: e.target.value }))}
-                  placeholder="Click Here, Learn More, Contact Us..."
-                />
-              </FormControl>
-            </FormItem>
-
-            <FormItem name="buttonUrl">
-              <FormLabel>Button Link</FormLabel>
-              <FormControl>
-                <Input
-                  value={editContent.buttonUrl || ''}
-                  onChange={(e) => setEditContent(prev => ({ ...prev, buttonUrl: e.target.value }))}
-                  placeholder="/about, https://discord.gg/..., mailto:info@..."
-                />
-              </FormControl>
-              <FormDescription>
-                • Internal links: /about, /menu, /staff<br/>
-                • External links: https://example.com<br/>
-                • Email: mailto:contact@crimsonphoenix.com<br/>
-                • Phone: tel:+1234567890
-              </FormDescription>
-            </FormItem>
-
+            <Input
+              value={editContent.buttonText || ''}
+              onChange={(e) => setEditContent(prev => ({ ...prev, buttonText: e.target.value }))}
+              placeholder="Button text..."
+            />
+            <Input
+              value={editContent.buttonUrl || ''}
+              onChange={(e) => setEditContent(prev => ({ ...prev, buttonUrl: e.target.value }))}
+              placeholder="Button URL or link..."
+            />
             <div className={styles.styleOptions}>
               <Select value={editContent.style || 'default'} onValueChange={(value) => 
                 setEditContent(prev => ({ ...prev, style: value as any }))}>
@@ -319,7 +288,6 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
                   <SelectItem value="accent">Accent</SelectItem>
                 </SelectContent>
               </Select>
-
               <Select value={editContent.alignment || 'left'} onValueChange={(value) => 
                 setEditContent(prev => ({ ...prev, alignment: value as any }))}>
                 <SelectTrigger>
@@ -332,25 +300,6 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
                 </SelectContent>
               </Select>
             </div>
-
-            {/* Preview of what the link will do */}
-            {editContent.buttonUrl && (
-              <div className={styles.linkPreview}>
-                <p><strong>Link Preview:</strong></p>
-                {editContent.buttonUrl.startsWith('http') && (
-                  <p>🌐 Opens in new tab: {editContent.buttonUrl}</p>
-                )}
-                {editContent.buttonUrl.startsWith('/') && (
-                  <p>🏠 Internal page: {editContent.buttonUrl}</p>
-                )}
-                {editContent.buttonUrl.startsWith('mailto:') && (
-                  <p>📧 Opens email: {editContent.buttonUrl.replace('mailto:', '')}</p>
-                )}
-                {editContent.buttonUrl.startsWith('tel:') && (
-                  <p>📞 Opens phone: {editContent.buttonUrl.replace('tel:', '')}</p>
-                )}
-              </div>
-            )}
           </div>
         );
 
@@ -446,45 +395,24 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
       case 'button':
         return (
           <div className={`${styles.buttonContent} ${styles[`align-${editContent.alignment || 'left'}`]}`}>
-            {editContent.buttonUrl ? (
-              <Button 
-                asChild
-                variant={editContent.style === 'primary' ? 'default' : 'outline'}
-                className={styles[`style-${editContent.style || 'default'}`]}
-              >
-                <a 
-                  href={editContent.buttonUrl} 
-                  target={editContent.buttonUrl.startsWith('http') ? '_blank' : '_self'}
-                  rel={editContent.buttonUrl.startsWith('http') ? 'noopener noreferrer' : undefined}
-                >
-                  {editContent.buttonText || 'Button Text'}
-                </a>
-              </Button>
-            ) : (
-              <Button 
-                variant={editContent.style === 'primary' ? 'default' : 'outline'}
-                className={styles[`style-${editContent.style || 'default'}`]}
-                disabled
-              >
-                {editContent.buttonText || 'Button Text'}
-              </Button>
-            )}
+            <Button 
+              variant={editContent.style === 'primary' ? 'default' : 'outline'}
+              className={styles[`style-${editContent.style || 'default'}`]}
+            >
+              {editContent.buttonText || 'Button Text'}
+            </Button>
           </div>
         );
 
       case 'divider':
         return (
           <div className={styles.dividerContent}>
-            <Separator className={styles[`style-${editContent.style || 'default'}`]} />
+            <Separator className={`${styles.divider} ${styles[`style-${editContent.style || 'default'}`]}`} />
           </div>
         );
 
       default:
-        return (
-          <div className={styles.textContent}>
-            <p>{editContent.text || 'Unsupported content type'}</p>
-          </div>
-        );
+        return <div className={styles.unknownBlock}>Unknown block type: {block.contentType}</div>;
     }
   };
 
@@ -513,11 +441,8 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
   };
 
   return (
-    <div className={`${styles.container} ${isEditing ? styles.editing : ''}`}>
-      <div className={styles.controls}>
-        <div className={styles.dragHandle}>
-          <Edit size={16} />
-        </div>
+    <div className={`${styles.contentBlock} ${isEditing ? styles.editing : ''}`}>
+      <div className={styles.blockHeader}>
         <div className={styles.blockInfo}>
           {getBlockIcon()}
           <span className={styles.blockTitle}>{getBlockTitle()}</span>
@@ -525,7 +450,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
             {block.contentType}
           </Badge>
         </div>
-        <div className={styles.actions}>
+        <div className={styles.blockActions}>
           {isEditing ? (
             <>
               <Button size="sm" variant="ghost" onClick={() => setPreviewMode(!previewMode)}>
@@ -543,7 +468,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
               <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)}>
                 <Edit size={14} /> Edit
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => onDelete(block.sectionKey)} className={styles.deleteButton}>
+              <Button size="sm" variant="ghost" onClick={() => onDelete(block.sectionKey)}>
                 <Trash2 size={14} /> Delete
               </Button>
             </>
@@ -551,7 +476,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
         </div>
       </div>
 
-      <div className={styles.contentWrapper}>
+      <div className={styles.blockContent}>
         {isEditing ? (
           previewMode ? (
             <div className={styles.previewMode}>

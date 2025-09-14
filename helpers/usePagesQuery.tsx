@@ -3,6 +3,8 @@ import { getListPages } from "../endpoints/pages/list_GET.schema";
 import { postCreatePage } from "../endpoints/pages/create_POST.schema";
 import { postUpdatePage } from "../endpoints/pages/update_POST.schema";
 import { postDeletePage } from "../endpoints/pages/delete_POST.schema";
+import { supabase } from './supabase';
+import { Database } from '../types/supabase';
 
 export const pagesQueryKey = ["pages"];
 

@@ -199,3 +199,5 @@ export const BlockTypePicker: React.FC<BlockTypePickerProps> = ({ onSelectBlock 
     </div>
   );
 };
+
+export default BlockTypePicker;

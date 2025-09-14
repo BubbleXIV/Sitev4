@@ -24,6 +24,48 @@ if (!window.requestIdleCallback) {
 
 import "./base.css";
 
+class ErrorBoundary extends React.Component
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('Error boundary caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '20px', color: 'red' }}>
+          <h1>Something went wrong</h1>
+          <p>{this.state.error?.message}</p>
+          <pre>{this.state.error?.stack}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// Then wrap your existing App function return with:
+export function App() {
+  return (
+    <ErrorBoundary>
+      <BrowserRouter>
+        {/* ... rest of your existing app code */}
+      </BrowserRouter>
+    </ErrorBoundary>
+  );
+}
+
 const fileNameToRoute = new Map([["./pages/menu.tsx","/menu"],["./pages/about.tsx","/about"],["./pages/admin.tsx","/admin"],["./pages/login.tsx","/login"],["./pages/staff.tsx","/staff"],["./pages/_index.tsx","/"],["./pages/services.tsx","/services"]]);
 const fileNameToComponent = new Map([
     ["./pages/menu.tsx", Page_0],

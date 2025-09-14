@@ -1,11 +1,36 @@
 import { createClient } from '@supabase/supabase-js'
 import { Database } from '../types/supabase'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Temporarily hardcoded for testing - replace with your actual values
+const supabaseUrl = 'https://aypjimhfxadmqxxarmhw.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5cGppbWhmeGFkbXF4eGFybWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MTYyMzAsImV4cCI6MjA3MzI5MjIzMH0.XsNE12hoUa5yaZrOXU3OKpRQ6d-SpbSNXs41j8kCZPE'
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+// Debug logging
+console.log('Supabase initialization:', {
+  url: supabaseUrl,
+  keyPresent: supabaseAnonKey !== 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5cGppbWhmeGFkbXF4eGFybWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MTYyMzAsImV4cCI6MjA3MzI5MjIzMH0.XsNE12hoUa5yaZrOXU3OKpRQ6d-SpbSNXs41j8kCZPE',
+  keyLength: supabaseAnonKey.length
+});
+
+// Environment variable debugging (commented out for now)
+// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+// console.log('Environment variables:', {
+//   NODE_ENV: import.meta.env.NODE_ENV,
+//   MODE: import.meta.env.MODE,
+//   urlPresent: !!import.meta.env.VITE_SUPABASE_URL,
+//   keyPresent: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+//   allEnvKeys: Object.keys(import.meta.env)
+// });
+
+if (!supabaseUrl || !supabaseAnonKey || supabaseAnonKey === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5cGppbWhmeGFkbXF4eGFybWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MTYyMzAsImV4cCI6MjA3MzI5MjIzMH0.XsNE12hoUa5yaZrOXU3OKpRQ6d-SpbSNXs41j8kCZPE') {
+  console.error('Supabase configuration error:', {
+    urlMissing: !supabaseUrl,
+    keyMissing: !supabaseAnonKey,
+    keyIsPlaceholder: supabaseAnonKey === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5cGppbWhmeGFkbXF4eGFybWh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3MTYyMzAsImV4cCI6MjA3MzI5MjIzMH0.XsNE12hoUa5yaZrOXU3OKpRQ6d-SpbSNXs41j8kCZPE'
+  });
+  throw new Error('Missing or invalid Supabase environment variables - please replace YOUR_ACTUAL_ANON_KEY_HERE with your real anon key')
 }
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
@@ -35,39 +60,86 @@ export const uploadFile = async (
   file: File,
   options?: { upsert?: boolean }
 ) => {
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(path, file, {
-      upsert: options?.upsert ?? false,
-      contentType: file.type
-    })
+  try {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(path, file, {
+        upsert: options?.upsert ?? false,
+        contentType: file.type
+      })
 
-  if (error) throw error
+    if (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
 
-  // Get the public URL
-  const { data: { publicUrl } } = supabase.storage
-    .from(bucket)
-    .getPublicUrl(data.path)
+    // Get the public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(data.path)
 
-  return {
-    path: data.path,
-    fullPath: data.fullPath,
-    publicUrl
+    console.log('File uploaded successfully:', { path: data.path, publicUrl });
+
+    return {
+      path: data.path,
+      fullPath: data.fullPath,
+      publicUrl
+    }
+  } catch (error) {
+    console.error('Upload function error:', error);
+    throw error;
   }
 }
 
 export const deleteFile = async (bucket: string, path: string) => {
-  const { error } = await supabase.storage
-    .from(bucket)
-    .remove([path])
+  try {
+    const { error } = await supabase.storage
+      .from(bucket)
+      .remove([path])
 
-  if (error) throw error
+    if (error) {
+      console.error('Delete error:', error);
+      throw error;
+    }
+
+    console.log('File deleted successfully:', path);
+  } catch (error) {
+    console.error('Delete function error:', error);
+    throw error;
+  }
 }
 
 export const getPublicUrl = (bucket: string, path: string) => {
-  const { data } = supabase.storage
-    .from(bucket)
-    .getPublicUrl(path)
+  try {
+    const { data } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(path)
 
-  return data.publicUrl
+    return data.publicUrl
+  } catch (error) {
+    console.error('Get public URL error:', error);
+    throw error;
+  }
+}
+
+// Test connection function
+export const testSupabaseConnection = async () => {
+  try {
+    console.log('Testing Supabase connection...');
+    const { data, error } = await supabase
+      .from('staff')
+      .select('count')
+      .limit(1);
+    
+    if (error) {
+      console.error('Supabase connection test failed:', error);
+      return false;
+    }
+    
+    console.log('Supabase connection successful');
+    return true;
+  } catch (error) {
+    console.error('Supabase connection test error:', error);
+    return false;
+  }
 }

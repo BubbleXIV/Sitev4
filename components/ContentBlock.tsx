@@ -441,8 +441,11 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
   };
 
   return (
-    <div className={`${styles.contentBlock} ${isEditing ? styles.editing : ''}`}>
-      <div className={styles.blockHeader}>
+    <div className={`${styles.container} ${isEditing ? styles.editing : ''}`}>
+      <div className={styles.controls}>
+        <div className={styles.dragHandle}>
+          <Edit size={16} />
+        </div>
         <div className={styles.blockInfo}>
           {getBlockIcon()}
           <span className={styles.blockTitle}>{getBlockTitle()}</span>
@@ -450,7 +453,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
             {block.contentType}
           </Badge>
         </div>
-        <div className={styles.blockActions}>
+        <div className={styles.actions}>
           {isEditing ? (
             <>
               <Button size="sm" variant="ghost" onClick={() => setPreviewMode(!previewMode)}>
@@ -468,7 +471,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
               <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)}>
                 <Edit size={14} /> Edit
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => onDelete(block.sectionKey)}>
+              <Button size="sm" variant="ghost" onClick={() => onDelete(block.sectionKey)} className={styles.deleteButton}>
                 <Trash2 size={14} /> Delete
               </Button>
             </>
@@ -476,7 +479,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = ({ block, onUpdate, onD
         </div>
       </div>
 
-      <div className={styles.blockContent}>
+      <div className={styles.contentWrapper}>
         {isEditing ? (
           previewMode ? (
             <div className={styles.previewMode}>

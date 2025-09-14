@@ -539,18 +539,22 @@ export const useDeleteAdminUserMutation = () => {
 // =============================================================================
 // PAGE CONTENT QUERIES
 // =============================================================================
-
-export const usePageContentQuery = () => {
+export const usePageContentQuery = (pageSlug?: string) => {
   return useQuery({
-    queryKey: queryKeys.pageContent,
+    queryKey: pageSlug ? [...queryKeys.pageContent, pageSlug] : queryKeys.pageContent,
     queryFn: async () => {
-      const { data: content, error } = await supabase
-        .from('page_content')
-        .select('*')
+      let query = supabase.from('page_content').select('*')
+      
+      if (pageSlug) {
+        query = query.eq('page_slug', pageSlug)
+      }
+      
+      const { data: content, error } = await query
 
       if (error) throw error
       return { content: content || [] }
-    }
+    },
+    enabled: !pageSlug || !!pageSlug // Always enabled, but respects the pageSlug parameter
   })
 }
 
